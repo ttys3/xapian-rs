@@ -22,6 +22,7 @@ std::unique_ptr<Stem> new_stem(rust::Str lang, int8_t &err);
 //
 std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int8_t action, int8_t db_type, int8_t &err);
 void commit (WritableDatabase &db, int8_t &err);
+void close (WritableDatabase &db, int8_t &err);
 docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc,  int8_t &err);
 void delete_document(WritableDatabase &db, rust::Str unique_term, int8_t &err);
 const std::string &get_db_description (WritableDatabase &db);
@@ -30,6 +31,7 @@ int32_t get_doccount (WritableDatabase &db, int8_t &err);
 //
 std::unique_ptr<TermGenerator> new_termgenerator(int8_t &err);
 void set_stemmer (TermGenerator &tg, Stem &stem, int8_t &err);
+void set_flags (TermGenerator &tg, int16_t toggle, int16_t mask, int8_t &err);
 void set_document (TermGenerator &tg, Document &doc, int8_t &err);
 void index_text_with_prefix (TermGenerator &tg, rust::Str data, rust::Str prefix, int8_t &err);
 void index_text (TermGenerator &tg, rust::Str data, int8_t &err);
@@ -54,6 +56,8 @@ std::unique_ptr<QueryParser> new_query_parser(int8_t &err);
 void set_max_wildcard_expansion(QueryParser &qp, int32_t limit, int8_t &err);
 void set_stemmer_to_qp(QueryParser &qp, Stem &stem, int8_t &err);
 void set_database(QueryParser &qp, Database &db, int8_t &err);
+void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
+void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
 std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int16_t flags, int8_t &err);
 std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int16_t flags, rust::Str prefix, int8_t &err);
 
@@ -79,4 +83,4 @@ std::unique_ptr<Document> get_doc_by_index (MSet &set, int32_t index, int8_t &er
 std::unique_ptr<MultiValueKeyMaker> new_multi_value_key_maker (int8_t &err);
 void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot, bool asc_desc, int8_t &err);
 
-
+std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int8_t &err);

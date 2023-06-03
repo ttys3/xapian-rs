@@ -18,6 +18,10 @@ fn main() {
         .flag_if_supported("-Wno-deprecated-declarations")
         .compile("xapian-rusty");
 
-    println!("cargo:rustc-link-lib=xapianm");
+    println!("cargo:rustc-link-lib=xapian");
     println!("cargo:rustc-link-lib=m");
+
+    println!("cargo:rerun-if-changed=xapian-bind.cc");
+    println!("cargo:rerun-if-changed=xapian-bind.h");
+    println!("cargo:rerun-if-changed=src/lib.rs");
 }

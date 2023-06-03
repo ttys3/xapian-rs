@@ -208,6 +208,18 @@ void commit(WritableDatabase &db, int8_t &err)
     }
 }
 
+void close(WritableDatabase &db, int8_t &err)
+{
+    try
+    {
+        db.close();
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
 int32_t get_doccount (WritableDatabase &db, int8_t &err) {
     try
     {
@@ -267,6 +279,18 @@ void set_stemmer(TermGenerator &tg, Stem &stem, int8_t &err)
     try
     {
         tg.set_stemmer(stem);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
+void set_flags (TermGenerator &tg, int16_t toggle, int16_t mask, int8_t &err)
+{
+    try
+    {
+        tg.set_flags(toggle, mask);
     }
     catch (Error ex)
     {
@@ -550,6 +574,33 @@ void set_database(QueryParser &qp, Database &db, int8_t &err)
     }
 }
 
+void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
+{
+    try
+    {
+        err = 0;
+        qp.add_prefix(std::string(field), std::string(prefix));
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
+void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
+{
+    try
+    {
+        err = 0;
+        std::string empty_grouping;
+        qp.add_boolean_prefix(std::string(field), std::string(prefix), &empty_grouping);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
 std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int16_t flags, int8_t &err) {
     try
     {
@@ -771,5 +822,20 @@ void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot
     catch (Error ex)
     {
         err = get_err_code(ex.get_type());
+    }
+}
+
+/////
+
+std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::ValueCountMatchSpy>(slot);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
     }
 }

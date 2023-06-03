@@ -30,6 +30,25 @@ pub const DB_CREATE: i8 = 0x02;
  */
 pub const DB_OPEN: i8 = 0x03;
 
+// Index data required for spelling correction.
+pub const FLAG_SPELLING: i16 = 128;
+
+/** Enable generation of n-grams from CJK text.
+ *
+ *  With this enabled, spans of CJK characters are split into unigrams
+ *  and bigrams, with the unigrams carrying positional information.
+ *  Non-CJK characters are split into words as normal.
+ *
+ *  The corresponding option needs to be passed to QueryParser.
+ *
+ *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
+ *  enabled in 1.2.8 and later by setting environment variable
+ *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+ *  in 1.4.11).
+ */
+pub const FLAG_CJK_NGRAM: i16 = 2048; // Value matches QueryParser flag.
+
+
 /// Enum of possible query operations
 /// #[repr(i32)]
 pub enum XapianOp {
@@ -260,6 +279,7 @@ pub(crate) mod ffi {
         pub(crate) type QueryParser;
         pub(crate) type Query;
         pub(crate) type MultiValueKeyMaker;
+        pub(crate) type ValueCountMatchSpy;
     }
 
     unsafe extern "C++" {
@@ -276,12 +296,14 @@ pub(crate) mod ffi {
 
         pub(crate) fn new_writable_database_with_path(path: &str, action: i8, db_type: i8, err: &mut i8) -> UniquePtr<WritableDatabase>;
         pub(crate) fn commit(db: Pin<&mut WritableDatabase>, err: &mut i8);
+        pub(crate) fn close(db: Pin<&mut WritableDatabase>, err: &mut i8);
         pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>, err: &mut i8) -> u32;
         pub(crate) fn delete_document(db: Pin<&mut WritableDatabase>, unique_term: &str, err: &mut i8);
         pub(crate) fn get_doccount(db: Pin<&mut WritableDatabase>, err: &mut i8) -> i32;
 
         pub(crate) fn new_termgenerator(err: &mut i8) -> UniquePtr<TermGenerator>;
         pub(crate) fn set_stemmer(tg: Pin<&mut TermGenerator>, stem: Pin<&mut Stem>, err: &mut i8);
+        pub(crate) fn set_flags(tg: Pin<&mut TermGenerator>, toggle: i16, mask: i16, err: &mut i8);
         pub(crate) fn set_document(tg: Pin<&mut TermGenerator>, doc: Pin<&mut Document>, err: &mut i8);
         pub(crate) fn index_text_with_prefix(tg: Pin<&mut TermGenerator>, data: &str, prefix: &str, err: &mut i8);
         pub(crate) fn index_text(tg: Pin<&mut TermGenerator>, data: &str, err: &mut i8);
@@ -312,6 +334,8 @@ pub(crate) mod ffi {
         pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32, err: &mut i8);
         pub(crate) fn set_stemmer_to_qp(qp: Pin<&mut QueryParser>, stem: Pin<&mut Stem>, err: &mut i8);
         pub(crate) fn set_database(qp: Pin<&mut QueryParser>, add_db: Pin<&mut Database>, err: &mut i8);
+        pub(crate) fn add_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str, err: &mut i8);
+        pub(crate) fn add_boolean_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str, err: &mut i8);
         pub(crate) fn parse_query(qp: Pin<&mut QueryParser>, query_string: &str, flags: i16, err: &mut i8) -> UniquePtr<Query>;
         pub(crate) fn parse_query_with_prefix(qp: Pin<&mut QueryParser>, query_string: &str, flags: i16, prefix: &str, err: &mut i8) -> UniquePtr<Query>;
 
@@ -324,6 +348,8 @@ pub(crate) mod ffi {
 
         pub(crate) fn new_multi_value_key_maker(err: &mut i8) -> UniquePtr<MultiValueKeyMaker>;
         pub(crate) fn add_value_to_multi_value_key_maker(this_m: Pin<&mut MultiValueKeyMaker>, slot: u32, asc_desc: bool, err: &mut i8);
+
+        pub(crate) fn new_value_count_match_spy(slot: u32, err: &mut i8) -> UniquePtr<ValueCountMatchSpy>;
     }
 }
 
@@ -495,7 +521,7 @@ impl QueryParser {
         }
     }
 
-    pub fn set_stemmer(&mut self, stem: &mut Stem) -> Result<(), XError> {
+    pub fn set_stemmer(&mut self, mut stem: Stem) -> Result<(), XError> {
         unsafe {
             let mut err = 0;
             ffi::set_stemmer_to_qp(self.cxxp.pin_mut(), stem.cxxp.pin_mut(), &mut err);
@@ -510,6 +536,32 @@ impl QueryParser {
         unsafe {
             let mut err = 0;
             ffi::set_database(self.cxxp.pin_mut(), database.cxxp.pin_mut(), &mut err);
+
+            if err == 0 {
+                Ok(())
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
+    }
+
+    pub fn add_prefix(&mut self, field: &str, prefix: &str) -> Result<(), XError> {
+        unsafe {
+            let mut err = 0;
+            ffi::add_prefix(self.cxxp.pin_mut(), field, prefix, &mut err);
+
+            if err == 0 {
+                Ok(())
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
+    }
+
+    pub fn add_boolean_prefix(&mut self, field: &str, prefix: &str) -> Result<(), XError> {
+        unsafe {
+            let mut err = 0;
+            ffi::add_boolean_prefix(self.cxxp.pin_mut(), field, prefix, &mut err);
 
             if err == 0 {
                 Ok(())
@@ -824,6 +876,20 @@ impl WritableDatabase {
         Ok(())
     }
 
+
+    pub fn close(&mut self) -> Result<(), XError> {
+        unsafe {
+            let mut err = 0;
+            ffi::close(self.cxxp.pin_mut(), &mut err);
+
+            if err == 0 {
+                Ok(())
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
+    }
+
     pub fn get_doccount(&mut self) -> Result<i32, XError> {
         unsafe {
             let mut err = 0;
@@ -980,10 +1046,21 @@ impl TermGenerator {
 
 #[allow(unused_unsafe)]
 impl TermGenerator {
-    pub fn set_stemmer(&mut self, stem: &mut Stem) -> Result<(), XError> {
+    pub fn set_stemmer(&mut self, mut stem: Stem) -> Result<(), XError> {
         unsafe {
             let mut err = 0;
             ffi::set_stemmer(self.cxxp.pin_mut(), stem.cxxp.pin_mut(), &mut err);
+            if err < 0 {
+                return Err(XError::Xapian(err));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn set_flags(&mut self, toggle: i16, mask: i16) -> Result<(), XError> {
+        unsafe {
+            let mut err = 0;
+            ffi::set_flags(self.cxxp.pin_mut(), toggle, mask, &mut err);
             if err < 0 {
                 return Err(XError::Xapian(err));
             }
@@ -1080,6 +1157,28 @@ impl TermGenerator {
             }
         }
         Ok(())
+    }
+}
+
+#[warn(unused_unsafe)]
+
+pub struct ValueCountMatchSpy {
+    pub cxxp: UniquePtr<ffi::ValueCountMatchSpy>,
+}
+
+impl ValueCountMatchSpy {
+    pub fn new(slot: u32) -> Result<Self, XError> {
+        unsafe {
+            let mut err = 0;
+            let obj = ffi::new_value_count_match_spy(slot, &mut err);
+            if err == 0 {
+                Ok(Self {
+                    cxxp: obj,
+                })
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
     }
 }
 
