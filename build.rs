@@ -16,7 +16,7 @@ fn main() {
         .file("xapian-bind.cc")
         .flag_if_supported("-std=c++14")
         .flag_if_supported("-Wno-deprecated-declarations")
-        .compile("xapian-rusty");
+        .compile("xapian-rs");
 
     println!("cargo:rustc-link-lib=xapian");
     println!("cargo:rustc-link-lib=m");

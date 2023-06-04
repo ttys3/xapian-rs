@@ -1,7 +1,7 @@
 use std::fmt::{Debug, format};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use xapian_rusty::{Database, WritableDatabase};
+use xapian::{Database, WritableDatabase};
 use serde::{Serialize, Deserialize};
 use serde_json::{from_str, to_string, Value};
 use chrono::{Datelike, DateTime, NaiveDateTime, Utc};
@@ -22,39 +22,39 @@ fn main()  -> Result<()> {
 
     let start_time = std::time::Instant::now();
 
-    let mut qp = xapian_rusty::QueryParser::new().expect("Error creating query parser");
+    let mut qp = xapian::QueryParser::new().expect("Error creating query parser");
     // set en stemm
-    let mut stem = xapian_rusty::Stem::new("en").expect("Error creating stemmer");
+    let mut stem = xapian::Stem::new("en").expect("Error creating stemmer");
     qp.set_stemmer(stem).expect("set_stemmer failed");
     qp.add_prefix("title", "T");
     qp.add_prefix("overview", "O");
 
-    // let mut nrp_year = xapian_rusty::RangeProcessor::new(2, "year:", xapian_rusty::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
+    // let mut nrp_year = xapian::RangeProcessor::new(2, "year:", xapian::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
     // qp.add_rangeprocessor(&mut nrp_year);
 
-    let mut nrp_year = xapian_rusty::NumberRangeProcessor::new(0, "year:", xapian_rusty::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
+    let mut nrp_year = xapian::NumberRangeProcessor::new(0, "year:", xapian::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
     qp.add_number_rangeprocessor(&mut nrp_year);
 
     qp.add_boolean_prefix("id", "Q");
 
 
-    let qp_flags = xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM as i32;
-    println!("qp_flags: {:?} | {:?} = {:?}", xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT, xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM, qp_flags);
+    let qp_flags = xapian::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM as i32;
+    println!("qp_flags: {:?} | {:?} = {:?}", xapian::QueryParserFeatureFlag::FLAG_DEFAULT, xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM, qp_flags);
     let mut query = qp.parse_query(qs, qp_flags)
         .expect("Error parsing query");
 
     let mut enquire = db.new_enquire().expect("Error creating enquire");
     enquire.set_query(&mut query).expect("set_query failed");
 
-    let mut genres_spy = xapian_rusty::ValueCountMatchSpy::new(1).expect("Error creating value count match spy");
+    let mut genres_spy = xapian::ValueCountMatchSpy::new(1).expect("Error creating value count match spy");
     enquire.add_matchspy_value_count(&mut genres_spy).expect("Error adding matchspy");
 
     let mut mset = enquire.get_mset(offset, page_size).expect("Error getting mset");
     let matches_estimated = mset.get_matches_estimated().expect("Error getting matches estimated");
     println!("matches_estimated: {}", matches_estimated);
 
-    let mut stem = xapian_rusty::Stem::new("en").expect("Error creating stemmer");
-    let snippet_flags = xapian_rusty::SnippetFlags::SNIPPET_BACKGROUND_MODEL as i32 | xapian_rusty::SnippetFlags::SNIPPET_EXHAUSTIVE as i32;
+    let mut stem = xapian::Stem::new("en").expect("Error creating stemmer");
+    let snippet_flags = xapian::SnippetFlags::SNIPPET_BACKGROUND_MODEL as i32 | xapian::SnippetFlags::SNIPPET_EXHAUSTIVE as i32;
     let mut it = mset.begin().unwrap();
     loop {
         if it.eq(&mut mset.end().unwrap()).unwrap() {

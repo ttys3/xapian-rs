@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use xapian_rusty::{Database, WritableDatabase};
+use xapian::{Database, WritableDatabase};
 use serde::{Serialize, Deserialize};
 use serde_json::{from_str, to_string, Value};
 use chrono::{Datelike, DateTime, NaiveDateTime, Utc};
@@ -11,15 +11,15 @@ fn main()  -> Result<()> {
     // https://xapian.org/docs/sourcedoc/html/namespaceXapian_1_1Chert.html#ad328887e1b0e513dff7f50f62a645a40
     // https://xapian.org/docs/apidoc/html/classXapian_1_1WritableDatabase.html#acac2d0fa337933e0ed66c7dce2ce75d0
     // automatically determining the database backend to use
-    let mut db = WritableDatabase::new("./xapian-movie", xapian_rusty::DB_CREATE_OR_OPEN, 0)
+    let mut db = WritableDatabase::new("./xapian-movie", xapian::DB_CREATE_OR_OPEN, 0)
         .expect("Error opening database");
 
-    // let mut doc = xapian_rusty::Document::new().expect("Error creating document");
+    // let mut doc = xapian::Document::new().expect("Error creating document");
 
-    let mut term_generator = xapian_rusty::TermGenerator::new().expect("Error creating term generator");
+    let mut term_generator = xapian::TermGenerator::new().expect("Error creating term generator");
     // support CJK
-    term_generator.set_flags(xapian_rusty::TermGeneratorFlag::FLAG_CJK_NGRAM as i32, xapian_rusty::TermGeneratorFlag::FLAG_DEFAULT as i32).expect("Error setting flags");
-    term_generator.set_stemmer(xapian_rusty::Stem::new("en").expect("Error creating stemmer"));
+    term_generator.set_flags(xapian::TermGeneratorFlag::FLAG_CJK_NGRAM as i32, xapian::TermGeneratorFlag::FLAG_DEFAULT as i32).expect("Error setting flags");
+    term_generator.set_stemmer(xapian::Stem::new("en").expect("Error creating stemmer"));
 
     // now we can index some data
     let file = File::open("./examples/movies.json")?;
@@ -41,7 +41,7 @@ fn main()  -> Result<()> {
 
         println!("{:?}", movie);
 
-        let mut doc = xapian_rusty::Document::new().expect("Error creating document");
+        let mut doc = xapian::Document::new().expect("Error creating document");
         doc.set_data(serde_json::to_string(&movie).unwrap().as_str());
 
         // add movie id term
