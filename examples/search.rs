@@ -8,7 +8,7 @@ use chrono::{Datelike, DateTime, NaiveDateTime, Utc};
 use anyhow::Result;
 
 fn main()  -> Result<()> {
-    let qs = "description:机器人 year:1980..1985 id:78";
+    let qs = "overview:social year:1980..1985";
     let offset = 0;
     let page_size = 5;
 
@@ -25,6 +25,12 @@ fn main()  -> Result<()> {
     qp.add_prefix("title", "T");
     qp.add_prefix("overview", "O");
 
+    let mut nrp_year = xapian_rusty::RangeProcessor::new(0, "year").expect("Error creating number range processor");
+    qp.add_rangeprocessor(&mut nrp_year);
+    //
+    // let mut nrp_year = xapian_rusty::NumberRangeProcessor::new(0, "year").expect("Error creating number range processor");
+    // qp.add_number_rangeprocessor(&mut nrp_year);
+
     qp.add_boolean_prefix("id", "Q");
 
     let genres = xapian_rusty::ValueCountMatchSpy::new(1);
@@ -38,13 +44,14 @@ fn main()  -> Result<()> {
     let matches_estimated = mset.get_matches_estimated().expect("Error getting matches estimated");
     println!("matches_estimated: {}", matches_estimated);
 
-    let mut it = mset.iterator().unwrap();
+    let mut it = mset.begin().unwrap();
     loop {
-        if !it.is_next().unwrap() {
+        if it.eq(&mut mset.end().unwrap()).unwrap() {
             break;
         }
         // undefined reference to `Xapian::MSet::get_doc_by_index(unsigned int)'
-        let data = it.get_document_data().expect("Error getting document");
+        let mut doc = it.get_document().expect("Error getting document");
+        let data = doc.get_data();
         let movie: Movie = from_str(&data).expect("Error parsing json");
         println!("movie: {:?}", movie);
         it.next();

@@ -48,6 +48,7 @@ void add_long(Document &doc, valueno slot, int64_t in_data, int8_t &err);
 void add_float(Document &doc, valueno slot, float in_data, int8_t &err);
 void add_double(Document &doc, valueno slot, double in_data, int8_t &err);
 void set_data (Document &doc, rust::Str data, int8_t &err);
+const std::string get_data(Document &doc, int8_t &err);
 void add_boolean_term(Document &doc, rust::Str data, int8_t &err);
 const std::string &get_doc_data (Document &doc);
 
@@ -58,6 +59,8 @@ void set_stemmer_to_qp(QueryParser &qp, Stem &stem, int8_t &err);
 void set_database(QueryParser &qp, Database &db, int8_t &err);
 void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
 void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
+void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc, int8_t &err);
+void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc, int8_t &err);
 std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int16_t flags, int8_t &err);
 std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int16_t flags, rust::Str prefix, int8_t &err);
 
@@ -77,10 +80,20 @@ void set_sort_by_key(Enquire &en, MultiValueKeyMaker & sorter, bool reverse, int
 //
 int get_matches_estimated (MSet &set, int8_t &err);
 int mset_size (MSet &set, int8_t &err);
-std::unique_ptr<Document> get_doc_by_index (MSet &set, int32_t index, int8_t &err);
+std::unique_ptr<MSetIterator> mset_begin (MSet &set, int8_t &err);
+std::unique_ptr<MSetIterator> mset_end (MSet &set, int8_t &err);
+std::unique_ptr<MSetIterator> mset_back (MSet &set, int8_t &err);
+
+//
+std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter, int8_t &err);
+bool mset_iterator_eq(MSetIterator &iter, MSetIterator &other, int8_t &err);
+void mset_iterator_next (MSetIterator &iter, int8_t &err);
 
 //
 std::unique_ptr<MultiValueKeyMaker> new_multi_value_key_maker (int8_t &err);
 void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot, bool asc_desc, int8_t &err);
 
 std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int8_t &err);
+
+std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str prefix, int8_t &err);
+std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int8_t &err);

@@ -85,7 +85,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
 // ---- patch ---- begin
         Xapian::docid get_id_by_index(Xapian::doccount index);
-        Document get_doc_by_index(Xapian::doccount index);
+//        Document get_doc_by_index(Xapian::doccount index);
 // ---- patch ---- end
 
     /** Convert a weight to a percentage.

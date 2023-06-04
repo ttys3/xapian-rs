@@ -491,6 +491,19 @@ void set_data(Document &doc, rust::Str data, int8_t &err)
     }
 }
 
+const std::string get_data(Document &doc, int8_t &err)
+{
+    try
+    {
+        err = 0;
+        return doc.get_data();
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
 void add_boolean_term(Document &doc, rust::Str data, int8_t &err)
 {
     try
@@ -580,6 +593,32 @@ void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
     {
         err = 0;
         qp.add_prefix(std::string(field), std::string(prefix));
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
+void add_rangeprocessor(QueryParser &qp, RangeProcessor *range_proc, int8_t &err) {
+    try
+    {
+        err = 0;
+        std::string empty_grouping;
+        qp.add_rangeprocessor(range_proc, &empty_grouping);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
+void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor *range_proc, int8_t &err) {
+    try
+    {
+        err = 0;
+        std::string empty_grouping;
+        qp.add_rangeprocessor(range_proc, &empty_grouping);
     }
     catch (Error ex)
     {
@@ -785,16 +824,80 @@ int mset_size (MSet &set, int8_t &err) {
     }
 }
 
-std::unique_ptr<Document> get_doc_by_index (MSet &set, int32_t index, int8_t &err) {
+std::unique_ptr<MSetIterator> mset_begin (MSet &set, int8_t &err) {
     try
     {
         err = 0;
-        return std::make_unique<Xapian::Document>(set.get_doc_by_index(index));
+        return std::make_unique<Xapian::MSetIterator>(set.begin());
     }
     catch (Error ex)
     {
         err = get_err_code(ex.get_type());
         return NULL;
+    }
+}
+
+std::unique_ptr<MSetIterator> mset_end (MSet &set, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::MSetIterator>(set.end());
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+std::unique_ptr<MSetIterator> mset_back (MSet &set, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::MSetIterator>(set.back());
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::Document>(iter.get_document());
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+bool mset_iterator_eq(MSetIterator &iter, MSetIterator &other, int8_t &err) {
+    try
+    {
+        err = 0;
+        return iter == other;
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return false;
+    }
+}
+
+void mset_iterator_next (MSetIterator &iter, int8_t &err) {
+    try
+    {
+        err = 0;
+        iter++;
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
     }
 }
 
@@ -832,6 +935,36 @@ std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int
     {
         err = 0;
         return std::make_unique<Xapian::ValueCountMatchSpy>(slot);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+/////
+
+std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str prefix, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::RangeProcessor>(slot, std::string(prefix), 0);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+/////
+
+std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::NumberRangeProcessor>(slot, std::string(prefix), 0);
     }
     catch (Error ex)
     {
