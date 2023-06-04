@@ -1,4 +1,4 @@
-/** @file database.h
+/** @file
  * @brief API for working with Xapian databases
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
@@ -825,7 +825,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  using bitwise-or (| in C++):
 	 *
 	 *   - Xapian::DB_NO_SYNC don't call fsync() or similar
+	 *   - Xapian::DB_FULL_SYNC try harder to ensure data is safe
 	 *   - Xapian::DB_DANGEROUS don't be crash-safe, no concurrent readers
+	 *   - Xapian::DB_NO_TERMLIST don't use a termlist table
 	 *   - Xapian::DB_RETRY_LOCK to wait to get a write lock
 	 *
 	 *  @param block_size If a new database is created, this specifies
@@ -877,6 +879,22 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	    return *this;
 	}
 #endif
+
+	/** Add shards from another WritableDatabase.
+	 *
+	 *  Any shards in @a other are added to the list of shards in this
+	 *  object.  The shards are reference counted and also remain in
+	 *  @a other.
+	 *
+	 *  @param other Another WritableDatabase object to add shards from
+	 */
+	void add_database(const WritableDatabase& other) {
+	    // This method is provided mainly so that adding a Database to a
+	    // WritableDatabase is a compile-time error - prior to 1.4.19, it
+	    // would essentially act as a "black-hole" shard which discarded
+	    // any changes made to it.
+	    Database::add_database(other);
+	}
 
 	/** Commit any pending modifications made to the database.
 	 *

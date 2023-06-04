@@ -1,7 +1,7 @@
-/** @file queryparser.h
+/** @file
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2021 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,11 @@ namespace Xapian {
 class Database;
 class Stem;
 
-/// Base class for stop-word decision functor.
+/** Abstract base class for stop-word decision functor.
+ *
+ *  If you just want to use an existing stopword list, see
+ *  Xapian::SimpleStopper.
+ */
 class XAPIAN_VISIBILITY_DEFAULT Stopper
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
@@ -102,12 +106,16 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
 
     /** Initialise from a pair of iterators.
      *
-     * Xapian includes stop list files for many languages. You can initialise from a file like that:
-     * @code
-     * ifstream words("stopwords/english/stop.txt");
-     * Xapian::SimplerStopper stopper(istream_iterator<string>(words), istream_iterator<string>());
-     * @endcode
+     *  Xapian includes stopword list files for many languages.  You can
+     *  initialise from a file like so:
+     *  @code
+     *  std::ifstream words("stopwords/english/stop.txt");
+     *  Xapian::SimplerStopper stopper(std::istream_iterator<std::string>(words), std::istream_iterator<std::string>());
+     *  @endcode
      *
+     *  In bindings for other languages it isn't possible to pass a C++
+     *  iterator pair, so instead this constructor is wrapped to allow
+     *  passing a filename.
      */
     template<class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
@@ -877,6 +885,32 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_CJK_NGRAM = 2048,
 
+	/** Accumulate unstem and stoplist results.
+	 *
+	 *  By default, the unstem and stoplist data is reset by a call to
+	 *  parse_query(), which makes sense if you use the same QueryParser
+	 *  object to parse a series of independent queries.
+	 *
+	 *  If you're using the same QueryParser object to parse several
+	 *  fields on the same query form, you may want to have the unstem
+	 *  and stoplist data combined for all of them, in which case you
+	 *  can use this flag to prevent this data from being reset.
+	 *
+	 *  @since Added in Xapian 1.4.18.
+	 */
+	FLAG_ACCUMULATE = 65536,
+
+	/** Produce a query which doesn't use positional information.
+	 *
+	 *  With this flag enabled, no positional information will be used
+	 *  and any query operations which would use it are replaced by
+	 *  the nearest equivalent which doesn't (so phrase searches, NEAR
+	 *  and ADJ will result in OP_AND).
+	 *
+	 *  @since Added in Xapian 1.4.19.
+	 */
+	FLAG_NO_POSITIONS = 0x20000,
+
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().
@@ -1229,6 +1263,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  deprecated - use @a add_rangeprocessor() with a RangeProcessor instead.
      */
     XAPIAN_DEPRECATED(void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)) {
+#ifdef __GNUC__
+// Avoid deprecation warnings if compiling without optimisation.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 	/// Compatibility shim.
 	class ShimRangeProcessor : public RangeProcessor {
 	    Xapian::Internal::opt_intrusive_ptr<Xapian::ValueRangeProcessor> vrp;
@@ -1249,6 +1288,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	};
 
 	add_rangeprocessor((new ShimRangeProcessor(vrproc))->release());
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
     }
 
     /** Get the spelling-corrected query string.

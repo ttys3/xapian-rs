@@ -1,4 +1,4 @@
-/** @file constants.h
+/** @file
  * @brief Constants in the Xapian namespace
  */
 /* Copyright (C) 2012,2013,2014,2015,2016 Olly Betts
@@ -77,7 +77,7 @@ const int DB_NO_SYNC		 = 0x04;
  *  that committing changes takes longer, and other I/O to the same disk may be
  *  delayed too.
  *
- *  Currently only Mac OS X is supported, and only on some filing system types
+ *  Currently only macOS is supported, and only on some filing system types
  *  - if not supported, Xapian will use fsync() or similar instead.
  */
 const int DB_FULL_SYNC		 = 0x08;

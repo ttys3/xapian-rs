@@ -1,4 +1,4 @@
-/** @file  mset.h
+/** @file
  *  @brief Class representing a list of search results
  */
 /* Copyright (C) 2015,2016,2019 Olly Betts
@@ -81,12 +81,6 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /// Destructor.
     ~MSet();
-
-
-// ---- patch ---- begin
-        Xapian::docid get_id_by_index(Xapian::doccount index);
-//        Document get_doc_by_index(Xapian::doccount index);
-// ---- patch ---- end
 
     /** Convert a weight to a percentage.
      *
