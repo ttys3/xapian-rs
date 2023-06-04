@@ -180,6 +180,7 @@ pub enum TermGeneratorFlag {
 
 /// QueryParser::feature_flag
 #[repr(i32)]
+#[derive(Debug)]
 pub enum QueryParserFeatureFlag {
     /// Support AND, OR, etc and bracketed subexpressions.
     FLAG_BOOLEAN = 1,
@@ -341,13 +342,15 @@ pub(crate) mod ffi {
         pub(crate) type Document;
         pub(crate) type MSet;
         pub(crate) type MSetIterator;
+        pub(crate) type TermIterator;
         pub(crate) type Enquire;
         pub(crate) type QueryParser;
         pub(crate) type Query;
         pub(crate) type MultiValueKeyMaker;
-        pub(crate) type ValueCountMatchSpy;
         pub(crate) type RangeProcessor;
         pub(crate) type NumberRangeProcessor;
+        pub(crate) type MatchSpy;
+        pub(crate) type ValueCountMatchSpy;
     }
 
     unsafe extern "C++" {
@@ -406,6 +409,7 @@ pub(crate) mod ffi {
         pub(crate) fn get_mset(en: Pin<&mut Enquire>, from: i32, size: i32, err: &mut i8) -> UniquePtr<MSet>;
         pub(crate) fn set_query(en: Pin<&mut Enquire>, query: Pin<&mut Query>, err: &mut i8);
         pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool, err: &mut i8);
+        pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8);
 
         pub(crate) fn new_query_parser(err: &mut i8) -> UniquePtr<QueryParser>;
         pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32, err: &mut i8);
@@ -431,6 +435,15 @@ pub(crate) mod ffi {
         pub(crate) fn new_value_count_match_spy(slot: u32, err: &mut i8) -> UniquePtr<ValueCountMatchSpy>;
         pub(crate) fn new_range_processor(slot: u32, prefix: &str, flags: i32, err: &mut i8) -> UniquePtr<RangeProcessor>;
         pub(crate) fn new_number_range_processor(slot: u32, prefix: &str, flags: i32, err: &mut i8) -> UniquePtr<NumberRangeProcessor>;
+
+        pub(crate) fn value_count_matchspy_values_begin(vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8) -> UniquePtr<TermIterator>;
+        pub(crate) fn value_count_matchspy_values_end(vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8) -> UniquePtr<TermIterator>;
+        pub(crate) fn value_count_matchspy_get_total(vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8) -> i32;
+
+        pub(crate) fn term_iterator_get_termfreq_value<'a>(titer: Pin<&'a mut TermIterator>, err: &'a mut i8) -> &'a CxxString;
+        pub(crate) fn term_iterator_get_termfreq_freq(titer: Pin<&mut TermIterator>, err: &mut i8) -> i32;
+        pub(crate) fn term_iterator_eq(titer: Pin<&mut TermIterator>, other: Pin<&mut TermIterator>, err: &mut i8) -> bool;
+        pub(crate) fn term_iterator_next(titer: Pin<&mut TermIterator>, err: &mut i8);
     }
 }
 
@@ -678,10 +691,10 @@ impl QueryParser {
         }
     }
 
-    pub fn parse_query(&mut self, query: &str, flags: crate::QueryParserFeatureFlag) -> Result<Query, XError> {
+    pub fn parse_query(&mut self, query: &str, flags: i32) -> Result<Query, XError> {
         unsafe {
             let mut err = 0;
-            let obj = ffi::parse_query(self.cxxp.pin_mut(), query, flags as i32, &mut err);
+            let obj = ffi::parse_query(self.cxxp.pin_mut(), query, flags, &mut err);
             if err == 0 {
                 Ok(Query {
                     cxxp: obj,
@@ -692,10 +705,10 @@ impl QueryParser {
         }
     }
 
-    pub fn parse_query_with_prefix(&mut self, query: &str, flags: crate::QueryParserFeatureFlag, prefix: &str) -> Result<Query, XError> {
+    pub fn parse_query_with_prefix(&mut self, query: &str, flags: i32, prefix: &str) -> Result<Query, XError> {
         unsafe {
             let mut err = 0;
-            let obj = ffi::parse_query_with_prefix(self.cxxp.pin_mut(), query, flags as i32, prefix, &mut err);
+            let obj = ffi::parse_query_with_prefix(self.cxxp.pin_mut(), query, flags, prefix, &mut err);
             if err == 0 {
                 Ok(Query {
                     cxxp: obj,
@@ -910,6 +923,24 @@ impl Enquire {
             let mut err = 0;
             ffi::set_sort_by_key(self.cxxp.pin_mut(), sorter.cxxp.pin_mut(), reverse, &mut err);
             self.sorter = Some(sorter);
+
+            if err == 0 {
+                Ok(())
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
+    }
+
+    pub fn add_matchspy() {
+        unimplemented!()
+    }
+
+    pub fn add_matchspy_value_count(&mut self, vcms: &mut ValueCountMatchSpy) -> Result<(), XError> {
+        #[allow(unused_unsafe)]
+        unsafe {
+            let mut err = 0;
+            ffi::add_matchspy_value_count(self.cxxp.pin_mut(), vcms.cxxp.pin_mut(), &mut err);
 
             if err == 0 {
                 Ok(())
@@ -1255,7 +1286,7 @@ impl TermGenerator {
         Ok(())
     }
 
-    pub fn set_flags(&mut self, toggle: crate::TermGeneratorFlag, mask: crate::TermGeneratorFlag) -> Result<(), XError> {
+    pub fn set_flags(&mut self, toggle: i32, mask: i32) -> Result<(), XError> {
         unsafe {
             let mut err = 0;
             ffi::set_flags(self.cxxp.pin_mut(), toggle as i32, mask as i32, &mut err);
@@ -1378,6 +1409,47 @@ impl ValueCountMatchSpy {
             }
         }
     }
+
+    // https://xapian.org/docs/facets#toc-entry-5
+    // return Xapian::TermIterator
+    pub fn values_begin(&mut self) -> Result<TermIterator, XError> {
+        unsafe {
+            let mut err = 0;
+            let obj = ffi::value_count_matchspy_values_begin( self.cxxp.pin_mut(), &mut err);
+
+            if err == 0 {
+                Ok(TermIterator {
+                    cxxp: obj,
+                })
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
+    }
+
+    pub fn values_end(&mut self) -> Result<TermIterator, XError> {
+        unsafe {
+            let mut err = 0;
+            let obj = ffi::value_count_matchspy_values_end( self.cxxp.pin_mut(), &mut err);
+
+            if err == 0 {
+                Ok(TermIterator {
+                    cxxp: obj,
+                })
+            } else {
+                Err(XError::Xapian(err))
+            }
+        }
+    }
+
+    pub fn get_total(&mut self) -> i32 {
+        unsafe {
+            let mut err = 0;
+            let rs = ffi::value_count_matchspy_get_total( self.cxxp.pin_mut(), &mut err);
+
+            return rs;
+        }
+    }
 }
 
 pub struct RangeProcessor {
@@ -1416,6 +1488,51 @@ impl NumberRangeProcessor {
             } else {
                 Err(XError::Xapian(err))
             }
+        }
+    }
+}
+
+#[warn(unused_unsafe)]
+
+pub struct TermIterator {
+    pub cxxp: UniquePtr<ffi::TermIterator>,
+}
+
+// std::string &term_iterator_get_termfreq_value(TermIterator &titer, int8_t &err);
+// int term_iterator_get_termfreq_freq(TermIterator &titer, int8_t &err);
+// bool term_iterator_eq(TermIterator &titer, TermIterator &other, int8_t &err);
+impl TermIterator {
+    pub fn get_termfreq_value(&mut self) -> String {
+        unsafe {
+            let mut err = 0;
+            let rs = ffi::term_iterator_get_termfreq_value(self.cxxp.pin_mut(), &mut err);
+
+            return rs.to_string();
+        }
+    }
+
+    pub fn get_termfreq_freq(&mut self) -> i32 {
+        unsafe {
+            let mut err = 0;
+            let rs = ffi::term_iterator_get_termfreq_freq(self.cxxp.pin_mut(), &mut err);
+
+            return rs;
+        }
+    }
+
+    pub fn eq(&mut self, other: &mut TermIterator) -> bool {
+        unsafe {
+            let mut err = 0;
+            let rs = ffi::term_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut(), &mut err);
+
+            return rs;
+        }
+    }
+
+    pub fn next(&mut self) {
+        unsafe {
+            let mut err = 0;
+            ffi::term_iterator_next(self.cxxp.pin_mut(), &mut err);
         }
     }
 }

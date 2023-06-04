@@ -796,6 +796,18 @@ void set_sort_by_key(Enquire &en, MultiValueKeyMaker &sorter, bool reverse, int8
     }
 }
 
+void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms, int8_t &err) {
+    try
+    {
+        err = 0;
+        en.add_matchspy(&vcms);
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+    }
+}
+
 /////
 
 int get_matches_estimated (MSet &set, int8_t &err) {
@@ -985,5 +997,98 @@ std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, 
     {
         err = get_err_code(ex.get_type());
         return NULL;
+    }
+}
+
+/////
+int value_count_matchspy_get_total(ValueCountMatchSpy &vcms, int8_t &err) {
+    try
+    {
+        err = 0;
+        return vcms.get_total();
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return 0;
+    }
+}
+
+std::unique_ptr<TermIterator> value_count_matchspy_values_begin(ValueCountMatchSpy &vcms, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::TermIterator>(vcms.values_begin());
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy &vcms, int8_t &err) {
+    try
+    {
+        err = 0;
+        return std::make_unique<Xapian::TermIterator>(vcms.values_end());
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+std::string g_str_termfreq_value;
+const std::string &term_iterator_get_termfreq_value(TermIterator &titer, int8_t &err) {
+    try
+    {
+        err = 0;
+        g_str_termfreq_value = *titer;
+        return g_str_termfreq_value;
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+int term_iterator_get_termfreq_freq(TermIterator &titer, int8_t &err) {
+    try
+    {
+        err = 0;
+        return titer.get_termfreq();
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return NULL;
+    }
+}
+
+bool term_iterator_eq(TermIterator &titer, TermIterator &other, int8_t &err) {
+    try
+    {
+        err = 0;
+        return titer == other;
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
+        return false;
+    }
+}
+
+void term_iterator_next(TermIterator &titer, int8_t &err) {
+    try
+    {
+        err = 0;
+        ++titer;
+    }
+    catch (Error ex)
+    {
+        err = get_err_code(ex.get_type());
     }
 }

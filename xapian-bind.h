@@ -76,7 +76,7 @@ const std::string &get_description (Query &q);
 std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size, int8_t &err);
 void set_query(Enquire &en, Query &query, int8_t &err);
 void set_sort_by_key(Enquire &en, MultiValueKeyMaker & sorter, bool reverse, int8_t &err);
-
+void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms, int8_t &err);
 //
 int get_matches_estimated (MSet &set, int8_t &err);
 int mset_size (MSet &set, int8_t &err);
@@ -97,3 +97,14 @@ std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int
 
 std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags, int8_t &err);
 std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags, int8_t &err);
+
+//
+std::unique_ptr<TermIterator> value_count_matchspy_values_begin(ValueCountMatchSpy &vcms, int8_t &err);
+std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy &vcms, int8_t &err);
+int value_count_matchspy_get_total(ValueCountMatchSpy &vcms, int8_t &err);
+
+//
+const std::string &term_iterator_get_termfreq_value(TermIterator &titer, int8_t &err);
+int term_iterator_get_termfreq_freq(TermIterator &titer, int8_t &err);
+bool term_iterator_eq(TermIterator &titer, TermIterator &other, int8_t &err);
+void term_iterator_next(TermIterator &titer, int8_t &err);

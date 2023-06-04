@@ -8,10 +8,10 @@ use chrono::{Datelike, DateTime, NaiveDateTime, Utc};
 use anyhow::Result;
 
 fn main()  -> Result<()> {
-    let qs = "title:godfather year:1972..1975";
+    let qs = "overview:gangsters year:1972..1975";
     // let qs = "id:14236";
     let offset = 0;
-    let page_size = 5;
+    let page_size = 40;
 
     // automatically determining the database backend to use
     let mut db = Database::new_with_path("./xapian-movie", 0)
@@ -36,15 +36,17 @@ fn main()  -> Result<()> {
 
     qp.add_boolean_prefix("id", "Q");
 
-    let genres = xapian_rusty::ValueCountMatchSpy::new(1);
 
-    let qp_flags = xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT | xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM;
-    println!("qp_flags: {:?} | {:?} = {:?}", xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT.bits(), xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM.bits(), qp_flags.bits());
+    let qp_flags = xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM as i32;
+    println!("qp_flags: {:?} | {:?} = {:?}", xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT, xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM, qp_flags);
     let mut query = qp.parse_query(qs, qp_flags)
         .expect("Error parsing query");
 
     let mut enquire = db.new_enquire().expect("Error creating enquire");
     enquire.set_query(&mut query).expect("set_query failed");
+
+    let mut genres_spy = xapian_rusty::ValueCountMatchSpy::new(1).expect("Error creating value count match spy");
+    enquire.add_matchspy_value_count(&mut genres_spy).expect("Error adding matchspy");
 
     let mut mset = enquire.get_mset(offset, page_size).expect("Error getting mset");
     let matches_estimated = mset.get_matches_estimated().expect("Error getting matches estimated");
@@ -62,6 +64,19 @@ fn main()  -> Result<()> {
         let movie: Movie = from_str(&data).expect("Error parsing json");
         println!("movie: {:?}", movie);
         it.next();
+    }
+
+    println!("genres_spy: {}", genres_spy.get_total());
+
+    let mut spy = genres_spy.values_begin().unwrap();
+    loop {
+        if spy.eq(&mut genres_spy.values_end().unwrap()) {
+            break;
+        }
+        let value = spy.get_termfreq_value();
+        let count = spy.get_termfreq_freq();
+        println!("{}: {}", value, count);
+        spy.next();
     }
 
     println!("qs={}", &qs);
