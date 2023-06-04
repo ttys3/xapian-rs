@@ -1,4 +1,4 @@
-use xapian::{Database, WritableDatabase};
+use xapian::WritableDatabase;
 
 fn main() {
     // https://xapian.org/docs/sourcedoc/html/namespaceXapian_1_1Chert.html#ad328887e1b0e513dff7f50f62a645a40

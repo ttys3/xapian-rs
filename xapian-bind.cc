@@ -491,19 +491,6 @@ void set_data(Document &doc, rust::Str data, int8_t &err)
     }
 }
 
-const std::string get_data(Document &doc, int8_t &err)
-{
-    try
-    {
-        err = 0;
-        return doc.get_data();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
-}
-
 void add_boolean_term(Document &doc, rust::Str data, int8_t &err)
 {
     try
@@ -879,13 +866,13 @@ std::string g_str_snippet;
 const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit,int8_t &err) {
     try
     {
-        //err = 0;
+        err = 0;
         g_str_snippet = set.snippet(std::string(text), length, stem, flags, std::string(hi_start), std::string(hi_end), std::string(omit));
         return g_str_snippet;
     }
     catch (Error ex)
     {
-        //err = get_err_code(ex.get_type());
+        err = get_err_code(ex.get_type());
         return NULL;
     }
 }
@@ -1079,7 +1066,7 @@ int term_iterator_get_termfreq_freq(TermIterator &titer, int8_t &err) {
     catch (Error ex)
     {
         err = get_err_code(ex.get_type());
-        return NULL;
+        return 0;
     }
 }
 

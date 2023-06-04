@@ -48,7 +48,6 @@ void add_long(Document &doc, valueno slot, int64_t in_data, int8_t &err);
 void add_float(Document &doc, valueno slot, float in_data, int8_t &err);
 void add_double(Document &doc, valueno slot, double in_data, int8_t &err);
 void set_data (Document &doc, rust::Str data, int8_t &err);
-const std::string get_data(Document &doc, int8_t &err);
 void add_boolean_term(Document &doc, rust::Str data, int8_t &err);
 const std::string &get_doc_data (Document &doc);
 
