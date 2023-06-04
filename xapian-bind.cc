@@ -8,10 +8,6 @@
 
 using namespace Xapian;
 
-const int BRASS     = 1;
-const int CHERT     = 2;
-const int IN_MEMORY = 3;
-
 char get_err_code(const char *type)
 {
     signed char err = 0;
@@ -83,18 +79,13 @@ std::unique_ptr<Database> new_database(int8_t &err)
     }
 }
 
-std::unique_ptr<Database> new_database_with_path(rust::Str path, int8_t db_type, int8_t &err)
+std::unique_ptr<Database> new_database_with_path(rust::Str path, int32_t db_type, int8_t &err)
 {
     try
     {
         err = 0;
 
-        if (db_type == CHERT)
-            return std::make_unique<Database>(Chert::open(std::string(path)));
-        else if (db_type == IN_MEMORY)
-            return std::make_unique<Database>(InMemory::open());
-        else
-            return std::make_unique<Database>(std::string(path));
+        return std::make_unique<Database>(std::string(path), db_type);
     }
     catch (Error ex)
     {
@@ -171,20 +162,14 @@ std::unique_ptr<Stem> new_stem(rust::Str lang, int8_t &err)
 }
 
 ///////////////////////////////////////////////////////////////
-std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int8_t action, int8_t db_type, int8_t &err)
+std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int32_t action, int32_t db_type, int8_t &err)
 {
     try
     {
         err = 0;
 
-        if (db_type == CHERT) {
-            return std::make_unique<WritableDatabase>(Chert::open(std::string(path), action));
-        }
-        else if (db_type == IN_MEMORY)
-            return std::make_unique<WritableDatabase>(InMemory::open());
-        else {
-            return std::make_unique<WritableDatabase>(std::string(path), action);
-        }
+        // "Honey backend doesn't support updating existing databases"
+        return std::make_unique<WritableDatabase>(std::string(path), action | db_type, 0);
     }
     catch (Error ex)
     {

@@ -4,31 +4,64 @@ use std::io;
 
 use cxx::UniquePtr;
 
-pub const BRASS: i8 = 1;
-pub const CHERT: i8 = 2;
-pub const IN_MEMORY: i8 = 3;
-pub const UNKNOWN: i8 = 0;
+/// WritableDatabase flags
+pub const DB_BACKEND_GLASS: i32 = 0x100;
+
+/// the chert backend, No longer supported as of Xapian 1.5.0
+pub const DB_BACKEND_CHERT: i32 = 0x200;
+/// Open a stub database file
+pub const DB_BACKEND_STUB: i32 = 0x300;
+
+/** Use the "in memory" backend.
+*
+*  The filename is currently ignored when this flag is used, but an empty
+*  string should be passed to allow for future expansion.
+*
+*  A new empty database is created, so when creating a Database object this
+*  creates an empty read-only database - sometimes useful to avoid special
+*  casing this situation, but otherwise of limited use.  It's more useful
+*  when creating a WritableDatabase object, though beware that the current
+*  inmemory backend implementation was not built for performance and
+*  scalability.
+*
+*  This provides an equivalent to Xapian::InMemory::open() in Xapian 1.2.
+ */
+pub const DB_BACKEND_INMEMORY: i32 = 0x400;
+
+/** Use the honey backend.
+*
+*  When opening a WritableDatabase, this means create a honey database if a
+*  new database is created.  If there's an existing database (of any type)
+*  at the specified path, this flag has no effect.
+*
+*  When opening a Database, this flag means to only open it if it's a honey
+*  database.  There's rarely a good reason to do this - it's mostly provided
+*  as equivalent functionality to that provided by the namespaced open()
+*  functions in Xapian 1.2.
+ */
+pub const DB_BACKEND_HONEY: i32	 = 0x500;
+
 
 /** Create database if it doesn't already exist.
  *
  *  If no opening mode is specified, this is the default.
  */
-pub const DB_CREATE_OR_OPEN: i8 = 0x00;
+pub const DB_CREATE_OR_OPEN: i32 = 0x00;
 
 /** Create database if it doesn't already exist, or overwrite if it does. */
-pub const DB_CREATE_OR_OVERWRITE: i8 = 0x01;
+pub const DB_CREATE_OR_OVERWRITE: i32 = 0x01;
 
 /** Create a new database.
  *
  *  If the database already exists, an exception will be thrown.
  */
-pub const DB_CREATE: i8 = 0x02;
+pub const DB_CREATE: i32 = 0x02;
 
 /** Open an existing database.
  *
  *  If the database doesn't exist, an exception will be thrown.
  */
-pub const DB_OPEN: i8 = 0x03;
+pub const DB_OPEN: i32 = 0x03;
 
 /// Enum of possible query operations
 /// #[repr(i32)]
@@ -401,7 +434,7 @@ pub(crate) mod ffi {
         include!("xapian/xapian-bind.h");
 
         pub(crate) fn new_database(err: &mut i8) -> UniquePtr<Database>;
-        pub(crate) fn new_database_with_path(path: &str, db_type: i8, err: &mut i8) -> UniquePtr<Database>;
+        pub(crate) fn new_database_with_path(path: &str, db_type: i32, err: &mut i8) -> UniquePtr<Database>;
         pub(crate) fn database_reopen(db: Pin<&mut Database>, err: &mut i8);
         pub(crate) fn database_close(db: Pin<&mut Database>, err: &mut i8);
         pub(crate) fn new_enquire(db: Pin<&mut Database>, err: &mut i8) -> UniquePtr<Enquire>;
@@ -409,7 +442,7 @@ pub(crate) mod ffi {
 
         pub(crate) fn new_stem(lang: &str, err: &mut i8) -> UniquePtr<Stem>;
 
-        pub(crate) fn new_writable_database_with_path(path: &str, action: i8, db_type: i8, err: &mut i8) -> UniquePtr<WritableDatabase>;
+        pub(crate) fn new_writable_database_with_path(path: &str, action: i32, db_type: i32, err: &mut i8) -> UniquePtr<WritableDatabase>;
         pub(crate) fn commit(db: Pin<&mut WritableDatabase>, err: &mut i8);
         pub(crate) fn close(db: Pin<&mut WritableDatabase>, err: &mut i8);
         pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>, err: &mut i8) -> u32;
@@ -1002,7 +1035,7 @@ impl Database {
         }
     }
 
-    pub fn new_with_path(path: &str, db_type: i8) -> Result<Self, XError> {
+    pub fn new_with_path(path: &str, db_type: i32) -> Result<Self, XError> {
         let mut err = 0;
         let obj = ffi::new_database_with_path(path, db_type, &mut err);
 
@@ -1064,7 +1097,7 @@ pub struct WritableDatabase {
 
 #[allow(unused_unsafe)]
 impl WritableDatabase {
-    pub fn new(path: &str, action: i8, db_type: i8) -> Result<Self, XError> {
+    pub fn new(path: &str, action: i32, db_type: i32) -> Result<Self, XError> {
         let mut err = 0;
         let obj = ffi::new_writable_database_with_path(path, action, db_type, &mut err);
 
