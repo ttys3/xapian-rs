@@ -18,7 +18,7 @@ fn main()  -> Result<()> {
 
     let mut term_generator = xapian_rusty::TermGenerator::new().expect("Error creating term generator");
     // support CJK
-    term_generator.set_flags(xapian_rusty::FLAG_CJK_NGRAM, 0).expect("Error setting flags");
+    term_generator.set_flags(xapian_rusty::TermGeneratorFlag::FLAG_CJK_NGRAM, xapian_rusty::TermGeneratorFlag::FLAG_DEFAULT).expect("Error setting flags");
     term_generator.set_stemmer(xapian_rusty::Stem::new("en").expect("Error creating stemmer"));
 
     // now we can index some data
@@ -53,6 +53,7 @@ fn main()  -> Result<()> {
         for genre in movie.genres {
             doc.add_string(1, genre.as_str());
         }
+        doc.add_string(2, movie.year.to_string().as_str());
 
         term_generator.set_document(&mut doc);
         term_generator.index_text_with_prefix(&movie.title, "T");
@@ -77,7 +78,7 @@ struct Movie {
     id: i64,
     title: String,
     overview: String,
-    #[serde(rename = "release_date", deserialize_with = "deserialize_year")]
+    #[serde(rename(deserialize = "release_date"), deserialize_with = "deserialize_year")]
     year: i32,
     genres: Vec<String>,
 }
@@ -92,6 +93,7 @@ fn deserialize_year<'de, D>(deserializer: D) -> Result<i32, D::Error>
     match dt     {
         Some(dt) => {
             let year = DateTime::<Utc>::from_utc(dt, Utc).year();
+            println!("value={}, year: {}", value, year);
             Ok(year)
         },
 

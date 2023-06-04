@@ -31,7 +31,7 @@ int32_t get_doccount (WritableDatabase &db, int8_t &err);
 //
 std::unique_ptr<TermGenerator> new_termgenerator(int8_t &err);
 void set_stemmer (TermGenerator &tg, Stem &stem, int8_t &err);
-void set_flags (TermGenerator &tg, int16_t toggle, int16_t mask, int8_t &err);
+void set_flags (TermGenerator &tg, int32_t toggle, int32_t mask, int8_t &err);
 void set_document (TermGenerator &tg, Document &doc, int8_t &err);
 void index_text_with_prefix (TermGenerator &tg, rust::Str data, rust::Str prefix, int8_t &err);
 void index_text (TermGenerator &tg, rust::Str data, int8_t &err);
@@ -61,8 +61,8 @@ void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
 void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
 void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc, int8_t &err);
 void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc, int8_t &err);
-std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int16_t flags, int8_t &err);
-std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int16_t flags, rust::Str prefix, int8_t &err);
+std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flags, int8_t &err);
+std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix, int8_t &err);
 
 //
 std::unique_ptr<Query> new_query(int8_t &err);
@@ -95,5 +95,5 @@ void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot
 
 std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int8_t &err);
 
-std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str prefix, int8_t &err);
-std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int8_t &err);
+std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags, int8_t &err);
+std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags, int8_t &err);

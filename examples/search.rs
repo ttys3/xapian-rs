@@ -8,7 +8,8 @@ use chrono::{Datelike, DateTime, NaiveDateTime, Utc};
 use anyhow::Result;
 
 fn main()  -> Result<()> {
-    let qs = "overview:social year:1980..1985";
+    let qs = "title:godfather year:1972..1975";
+    // let qs = "id:14236";
     let offset = 0;
     let page_size = 5;
 
@@ -19,23 +20,28 @@ fn main()  -> Result<()> {
     // let doc_count = db.get_doccount().expect("Error getting doc count");
     // println!("doc count: {}", doc_count);
 
+    let start_time = std::time::Instant::now();
+
     let mut qp = xapian_rusty::QueryParser::new().expect("Error creating query parser");
     // set en stemm
     qp.set_stemmer(xapian_rusty::Stem::new("en").expect("Error creating stemmer")).expect("set_stemmer failed");
     qp.add_prefix("title", "T");
     qp.add_prefix("overview", "O");
 
-    let mut nrp_year = xapian_rusty::RangeProcessor::new(0, "year").expect("Error creating number range processor");
-    qp.add_rangeprocessor(&mut nrp_year);
-    //
-    // let mut nrp_year = xapian_rusty::NumberRangeProcessor::new(0, "year").expect("Error creating number range processor");
-    // qp.add_number_rangeprocessor(&mut nrp_year);
+    // let mut nrp_year = xapian_rusty::RangeProcessor::new(2, "year:", xapian_rusty::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
+    // qp.add_rangeprocessor(&mut nrp_year);
+
+    let mut nrp_year = xapian_rusty::NumberRangeProcessor::new(0, "year:", xapian_rusty::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
+    qp.add_number_rangeprocessor(&mut nrp_year);
 
     qp.add_boolean_prefix("id", "Q");
 
     let genres = xapian_rusty::ValueCountMatchSpy::new(1);
 
-    let mut query = qp.parse_query(qs, xapian_rusty::FLAG_CJK_NGRAM).expect("Error parsing query");
+    let qp_flags = xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT | xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM;
+    println!("qp_flags: {:?} | {:?} = {:?}", xapian_rusty::QueryParserFeatureFlag::FLAG_DEFAULT.bits(), xapian_rusty::QueryParserFeatureFlag::FLAG_CJK_NGRAM.bits(), qp_flags.bits());
+    let mut query = qp.parse_query(qs, qp_flags)
+        .expect("Error parsing query");
 
     let mut enquire = db.new_enquire().expect("Error creating enquire");
     enquire.set_query(&mut query).expect("set_query failed");
@@ -52,11 +58,14 @@ fn main()  -> Result<()> {
         // undefined reference to `Xapian::MSet::get_doc_by_index(unsigned int)'
         let mut doc = it.get_document().expect("Error getting document");
         let data = doc.get_data();
+        // println!("raw doc data: {}", &data);
         let movie: Movie = from_str(&data).expect("Error parsing json");
         println!("movie: {:?}", movie);
         it.next();
     }
 
+    println!("qs={}", &qs);
+    println!("doc count: {}, index doc took: {}ms", matches_estimated, start_time.elapsed().as_millis());
     println!("search test ok");
     Ok(())
 }
@@ -67,26 +76,6 @@ struct Movie {
     id: i64,
     title: String,
     overview: String,
-    #[serde(rename = "release_date", deserialize_with = "deserialize_year")]
     year: i32,
     genres: Vec<String>,
-}
-
-
-fn deserialize_year<'de, D>(deserializer: D) -> Result<i32, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-{
-    let value: i64 = Deserialize::deserialize(deserializer)?;
-    let dt = NaiveDateTime::from_timestamp_opt(value, 0);
-    match dt     {
-        Some(dt) => {
-            let year = DateTime::<Utc>::from_utc(dt, Utc).year();
-            Ok(year)
-        },
-
-        _ => {
-            Err(serde::de::Error::custom("Invalid year format"))
-        }
-    }
 }

@@ -286,7 +286,7 @@ void set_stemmer(TermGenerator &tg, Stem &stem, int8_t &err)
     }
 }
 
-void set_flags (TermGenerator &tg, int16_t toggle, int16_t mask, int8_t &err)
+void set_flags (TermGenerator &tg, int32_t toggle, int32_t mask, int8_t &err)
 {
     try
     {
@@ -600,12 +600,12 @@ void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
     }
 }
 
-void add_rangeprocessor(QueryParser &qp, RangeProcessor *range_proc, int8_t &err) {
+void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc, int8_t &err) {
     try
     {
         err = 0;
         std::string empty_grouping;
-        qp.add_rangeprocessor(range_proc, &empty_grouping);
+        qp.add_rangeprocessor(&range_proc, &empty_grouping);
     }
     catch (Error ex)
     {
@@ -613,12 +613,12 @@ void add_rangeprocessor(QueryParser &qp, RangeProcessor *range_proc, int8_t &err
     }
 }
 
-void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor *range_proc, int8_t &err) {
+void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc, int8_t &err) {
     try
     {
         err = 0;
         std::string empty_grouping;
-        qp.add_rangeprocessor(range_proc, &empty_grouping);
+        qp.add_rangeprocessor(&range_proc, &empty_grouping);
     }
     catch (Error ex)
     {
@@ -640,7 +640,7 @@ void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8
     }
 }
 
-std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int16_t flags, int8_t &err) {
+std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flags, int8_t &err) {
     try
     {
         err = 0;
@@ -653,7 +653,7 @@ std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int16_t flag
     }
 }
 
-std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int16_t flags, rust::Str prefix, int8_t &err) {
+std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix, int8_t &err) {
     try
     {
         err = 0;
@@ -945,11 +945,26 @@ std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int
 
 /////
 
-std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str prefix, int8_t &err) {
+std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags, int8_t &err) {
     try
     {
         err = 0;
-        return std::make_unique<Xapian::RangeProcessor>(slot, std::string(prefix), 0);
+        // https://xapian.org/docs/sourcedoc/html/classXapian_1_1RangeProcessor.html#aca78f2633f761f70a2e94e62e741f0ba
+        //        Xapian::RangeProcessor::RangeProcessor (	Xapian::valueno 	slot_,const std::string & 	str_ = std::string(),unsigned 	flags_ = 0 )
+        //        slot_	Which value slot to generate ranges over.
+        //                str_	A string to look for to recognise values as belonging to this range (as a prefix by default, or as a suffix if flags Xapian::RP_SUFFIX is specified).
+        //        flags_	Zero or more of the following flags, combined with bitwise-or (| in C++):
+        //        Xapian::RP_SUFFIX - require str_ as a suffix instead of a prefix.
+        //        Xapian::RP_REPEATED - optionally allow str_ on both ends of the range - e.g. $1..$10 or 5m..50m.
+        //                By default a prefix is only checked for on the start (e.g. date:1/1/1980..31/12/1989), and a suffix only on the end (e.g. 2..12kg).
+
+        // enum {
+        //    RP_SUFFIX = 1,
+        //    RP_REPEATED = 2,
+        //    RP_DATE_PREFER_MDY = 4
+        //};
+        // when flags = 0, str as a prefix by default
+        return std::make_unique<Xapian::RangeProcessor>(slot, std::string(str), flags);
     }
     catch (Error ex)
     {
@@ -960,11 +975,11 @@ std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str pre
 
 /////
 
-std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int8_t &err) {
+std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags, int8_t &err) {
     try
     {
         err = 0;
-        return std::make_unique<Xapian::NumberRangeProcessor>(slot, std::string(prefix), 0);
+        return std::make_unique<Xapian::NumberRangeProcessor>(slot, std::string(prefix), flags);
     }
     catch (Error ex)
     {
