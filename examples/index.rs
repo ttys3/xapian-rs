@@ -11,7 +11,8 @@ fn main()  -> Result<()> {
     // https://xapian.org/docs/sourcedoc/html/namespaceXapian_1_1Chert.html#ad328887e1b0e513dff7f50f62a645a40
     // https://xapian.org/docs/apidoc/html/classXapian_1_1WritableDatabase.html#acac2d0fa337933e0ed66c7dce2ce75d0
     // automatically determining the database backend to use
-    let mut db = WritableDatabase::new("./xapian-movie", xapian::DB_CREATE_OR_OPEN, 0)
+    let _ = std::fs::create_dir_all("./data");
+    let mut db = WritableDatabase::new("./data/xapian-movie", xapian::DB_CREATE_OR_OPEN, 0)
         .expect("Error opening database");
 
     // let mut doc = xapian::Document::new().expect("Error creating document");

@@ -14,7 +14,8 @@ fn main()  -> Result<()> {
     let page_size = 40;
 
     // automatically determining the database backend to use
-    let mut db = Database::new_with_path("./xapian-movie", 0)
+    let _ = std::fs::create_dir_all("./data");
+    let mut db = Database::new_with_path("./data/xapian-movie", 0)
         .expect("Error opening database");
 
     // let doc_count = db.get_doccount().expect("Error getting doc count");
