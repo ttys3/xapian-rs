@@ -12,10 +12,10 @@ links = "xapian-rs"
 path = "src/lib.rs"
 
 [dependencies]
-cxx = "1.0.2"
+cxx = "1.0.95"
 
 [build-dependencies]
-cxx-build = "1.0.2"
+cxx-build = "1.0.95"
 
 [dev-dependencies]
 anyhow = "1.0.71"
