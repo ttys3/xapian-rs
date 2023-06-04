@@ -442,8 +442,8 @@ pub(crate) mod ffi {
 
         pub(crate) fn new_stem(lang: &str, err: &mut i8) -> UniquePtr<Stem>;
 
-        pub(crate) fn new_writable_database_with_path(path: &str, action: i32, db_type: i32, err: &mut i8) -> UniquePtr<WritableDatabase>;
-        pub(crate) fn commit(db: Pin<&mut WritableDatabase>, err: &mut i8);
+        pub(crate) fn new_writable_database_with_path(path: &str, action: i32, db_type: i32) -> Result<UniquePtr<WritableDatabase>>;
+        pub(crate) fn commit(db: Pin<&mut WritableDatabase>) -> Result<()>;
         pub(crate) fn close(db: Pin<&mut WritableDatabase>, err: &mut i8);
         pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>, err: &mut i8) -> u32;
         pub(crate) fn delete_document(db: Pin<&mut WritableDatabase>, unique_term: &str, err: &mut i8);
@@ -1097,14 +1097,10 @@ pub struct WritableDatabase {
 
 #[allow(unused_unsafe)]
 impl WritableDatabase {
-    pub fn new(path: &str, action: i32, db_type: i32) -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_writable_database_with_path(path, action, db_type, &mut err);
-
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
+    pub fn new(path: &str, action: i32, db_type: i32) -> Result<Self, cxx::Exception> {
+        match ffi::new_writable_database_with_path(path, action, db_type) {
+            Ok(cxxp) => Ok(WritableDatabase { cxxp }),
+            Err(e) => Err(e),
         }
     }
 
@@ -1126,13 +1122,11 @@ impl WritableDatabase {
         Ok(())
     }
 
-    pub fn commit(&mut self) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::commit(self.cxxp.pin_mut(), &mut err);
-        if err < 0 {
-            return Err(XError::Xapian(err));
+    pub fn commit(&mut self) -> Result<(), cxx::Exception> {
+        match ffi::commit(self.cxxp.pin_mut()) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
         }
-        Ok(())
     }
 
     pub fn close(&mut self) -> Result<(), XError> {

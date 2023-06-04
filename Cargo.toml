@@ -15,7 +15,7 @@ links = "xapian-rs"
 path = "src/lib.rs"
 
 [dependencies]
-cxx = "1.0.95"
+cxx = { version = "1.0.95", features = ["c++14", "c++17"] }
 
 [build-dependencies]
 cxx-build = "1.0.95"

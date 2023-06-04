@@ -162,26 +162,13 @@ std::unique_ptr<Stem> new_stem(rust::Str lang, int8_t &err)
 }
 
 ///////////////////////////////////////////////////////////////
-std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int32_t action, int32_t db_type, int8_t &err)
+std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int32_t action, int32_t db_type)
 {
-    try
-    {
-        err = 0;
-
-        // "Honey backend doesn't support updating existing databases"
-        return std::make_unique<WritableDatabase>(std::string(path), action | db_type, 0);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        if (err == 0) {
-            err = -4;
-        }
-        return NULL;
-    }
+    // "Honey backend doesn't support updating existing databases"
+    return std::make_unique<WritableDatabase>(std::string(path), action | db_type, 0);
 }
 
-void commit(WritableDatabase &db, int8_t &err)
+void commit(WritableDatabase &db)
 {
     try
     {
@@ -189,7 +176,7 @@ void commit(WritableDatabase &db, int8_t &err)
     }
     catch (Error ex)
     {
-        err = get_err_code(ex.get_type());
+        throw ex;
     }
 }
 

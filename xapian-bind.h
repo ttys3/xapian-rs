@@ -5,6 +5,24 @@
 #include <string>
 #include <string.h>
 
+#include <stdexcept>
+#include <exception>
+
+// ref https://github.com/brson/wasm-opt-rs/blob/66b161e294bb332947f8319993ae1f8d3498e1e8/components/wasm-opt-cxx-sys/src/shims.h#L13
+// https://brson.github.io/2022/10/26/creating-wasm-opt-rust-bindings-with-cxx
+// https://github.com/dtolnay/cxx/pull/74/files#diff-b43c1d065c83e99920c09c2d8dbed19687b44a3aeb8e1400a6f5228064a3629f
+// https://cxx.rs/binding/result.html
+namespace rust::behavior {
+    template <typename Try, typename Fail>
+    static void trycatch(Try &&func, Fail &&fail) noexcept try {
+        func();
+    } catch (Error &ex) {
+        fail(ex.what());
+    } catch (::std::exception const &e) {
+        fail(e.what());
+    }
+}
+
 using namespace Xapian;
 
 std::unique_ptr<Database> new_database(int8_t &err);
@@ -20,8 +38,8 @@ void database_close(Database &db, int8_t &err);
 std::unique_ptr<Stem> new_stem(rust::Str lang, int8_t &err);
 
 //
-std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int32_t action, int32_t db_type, int8_t &err);
-void commit (WritableDatabase &db, int8_t &err);
+std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int32_t action, int32_t db_type);
+void commit (WritableDatabase &db);
 void close (WritableDatabase &db, int8_t &err);
 docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc,  int8_t &err);
 void delete_document(WritableDatabase &db, rust::Str unique_term, int8_t &err);
