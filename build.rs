@@ -25,6 +25,12 @@ fn main() {
         .compile("xapian-rs");
 
     // external lib
+    // static, dylib, framework, link-arg
+    // println!("cargo:rustc-link-search=all=xapian/xapian-core/.libs");
+    // println!("cargo:rustc-link-lib=static=xapian-1.5");
+    // println!("cargo:rustc-link-lib=dylib=xapian-1.5");
+
+    // sudo dnf install -y xapian-core-devel xapian-core-libs
     println!("cargo:rustc-link-lib=xapian");
     println!("cargo:rustc-link-lib=m");
 
