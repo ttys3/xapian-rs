@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, format};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use xapian_rusty::{Database, WritableDatabase};
@@ -24,7 +24,8 @@ fn main()  -> Result<()> {
 
     let mut qp = xapian_rusty::QueryParser::new().expect("Error creating query parser");
     // set en stemm
-    qp.set_stemmer(xapian_rusty::Stem::new("en").expect("Error creating stemmer")).expect("set_stemmer failed");
+    let mut stem = xapian_rusty::Stem::new("en").expect("Error creating stemmer");
+    qp.set_stemmer(stem).expect("set_stemmer failed");
     qp.add_prefix("title", "T");
     qp.add_prefix("overview", "O");
 
@@ -52,6 +53,8 @@ fn main()  -> Result<()> {
     let matches_estimated = mset.get_matches_estimated().expect("Error getting matches estimated");
     println!("matches_estimated: {}", matches_estimated);
 
+    let mut stem = xapian_rusty::Stem::new("en").expect("Error creating stemmer");
+    let snippet_flags = xapian_rusty::SnippetFlags::SNIPPET_BACKGROUND_MODEL as i32 | xapian_rusty::SnippetFlags::SNIPPET_EXHAUSTIVE as i32;
     let mut it = mset.begin().unwrap();
     loop {
         if it.eq(&mut mset.end().unwrap()).unwrap() {
@@ -62,6 +65,11 @@ fn main()  -> Result<()> {
         let data = doc.get_data();
         // println!("raw doc data: {}", &data);
         let movie: Movie = from_str(&data).expect("Error parsing json");
+        // if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
+        // 	// Too easy!
+        // 	return text;
+        //     }
+        println!("snippet: {:?}", mset.snippet(movie.overview.as_str(), 100, &mut stem, snippet_flags, "<b>", "</b>", "..."));
         println!("movie: {:?}", movie);
         it.next();
     }

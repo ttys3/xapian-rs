@@ -80,6 +80,7 @@ void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms, int8_t &err
 //
 int get_matches_estimated (MSet &set, int8_t &err);
 int mset_size (MSet &set, int8_t &err);
+const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit,int8_t &err);
 std::unique_ptr<MSetIterator> mset_begin (MSet &set, int8_t &err);
 std::unique_ptr<MSetIterator> mset_end (MSet &set, int8_t &err);
 std::unique_ptr<MSetIterator> mset_back (MSet &set, int8_t &err);

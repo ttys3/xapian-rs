@@ -331,6 +331,50 @@ pub enum RangeProcessorFlags {
     RP_DATE_PREFER_MDY = 4,
 }
 
+#[repr(i32)]
+#[derive(Debug)]
+pub enum SnippetFlags {
+    /** Model the relevancy of non-query terms in MSet::snippet().
+     *
+     *  Non-query terms will be assigned a small weight, and the snippet
+     *  will tend to prefer snippets which contain a more interesting
+     *  background (where the query term content is equivalent).
+     */
+    SNIPPET_BACKGROUND_MODEL = 1,
+    /** Exhaustively evaluate candidate snippets in MSet::snippet().
+     *
+     *  Without this flag, snippet generation will stop once it thinks
+     *  it has found a "good enough" snippet, which will generally reduce
+     *  the time taken to generate a snippet.
+     */
+    SNIPPET_EXHAUSTIVE = 2,
+    /** Return the empty string if no term got matched.
+     *
+     *  If enabled, snippet() returns an empty string if not a single match
+     *  was found in text. If not enabled, snippet() returns a (sub)string
+     *  of text without any highlighted terms.
+     */
+    SNIPPET_EMPTY_WITHOUT_MATCH = 4,
+
+    /** Enable generation of n-grams from CJK text.
+     *
+     *  This option highlights CJK searches made using the QueryParser
+     *  FLAG_CJK_NGRAM flag.  Non-CJK characters are split into words as
+     *  normal.
+     *
+     *  The TermGenerator FLAG_CJK_NGRAM flag needs to have been used at
+     *  index time.
+     *
+     *  This mode can also be enabled by setting environment variable
+     *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+     *  in 1.4.11).
+     *
+     *  @since Added in Xapian 1.4.11.
+     */
+    SNIPPET_CJK_NGRAM = 2048
+}
+
+
 #[cxx::bridge]
 pub(crate) mod ffi {
     #[namespace = "Xapian"]
@@ -395,12 +439,11 @@ pub(crate) mod ffi {
 
         pub(crate) fn get_matches_estimated(set: Pin<&mut MSet>, err: &mut i8) -> i32;
         pub(crate) fn mset_size(set: Pin<&mut MSet>, err: &mut i8) -> i32;
+        pub(crate) fn mset_snippet<'a>(set: Pin<&'a mut MSet>, text: &'a str, length: i32, stem: Pin<&'a mut Stem>, flags: i32, hi_start: &'a str,hi_end: &'a str, omit: &'a str, err: &'a mut i8) -> &'a CxxString;
         pub(crate) fn mset_iterator_get_document(iter: Pin<&mut MSetIterator>, err: &mut i8) -> UniquePtr<Document>;
         pub(crate) fn mset_iterator_eq(iter: Pin<&mut MSetIterator>, other: Pin<&mut MSetIterator>, err: &mut i8) -> bool;
         pub(crate) fn mset_iterator_next(iter: Pin<&mut MSetIterator>, err: &mut i8);
-        // std::unique_ptr<MSetIterator> mset_begin (MSet &set, int8_t &err);
-        // std::unique_ptr<MSetIterator> mset_end (MSet &set, int8_t &err);
-        // std::unique_ptr<MSetIterator> mset_back (MSet &set, int8_t &err);
+
         pub(crate) fn mset_begin(set: Pin<&mut MSet>, err: &mut i8) -> UniquePtr<MSetIterator>;
         pub(crate) fn mset_end(set: Pin<&mut MSet>, err: &mut i8) -> UniquePtr<MSetIterator>;
         pub(crate) fn mset_back(set: Pin<&mut MSet>, err: &mut i8) -> UniquePtr<MSetIterator>;
@@ -877,6 +920,16 @@ impl MSet {
             } else {
                 Err(XError::Xapian(err))
             }
+        }
+    }
+
+    pub fn snippet(&mut self, text: & str, length: i32, stem: &mut Stem, flags: i32, hi_start: & str,hi_end: & str, omit: & str) -> String {
+        #[allow(unused_unsafe)]
+        unsafe {
+            let mut err = 0;
+            let res = ffi::mset_snippet(self.cxxp.pin_mut(), text, length, stem.cxxp.pin_mut(), flags, hi_start, hi_end, omit, &mut err);
+
+            return res.to_string();
         }
     }
 }
