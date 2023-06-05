@@ -98,18 +98,9 @@ std::unique_ptr<Enquire> new_enquire(Database &db)
 
 //////
 
-std::unique_ptr<Stem> new_stem(rust::Str lang, int8_t &err)
+std::unique_ptr<Stem> new_stem(rust::Str lang)
 {
-    try
-    {
-        err = 0;
-        return std::make_unique<Stem>(std::string(lang));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Stem>(std::string(lang));
 }
 
 ///////////////////////////////////////////////////////////////
@@ -131,189 +122,80 @@ void commit(WritableDatabase &db)
     }
 }
 
-void close(WritableDatabase &db, int8_t &err)
+void close(WritableDatabase &db)
 {
-    try
-    {
-        db.close();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    db.close();
 }
 
-int32_t get_doccount (WritableDatabase &db, int8_t &err) {
-    try
-    {
-        return db.get_doccount();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return 0;
-    }
+int32_t get_doccount (WritableDatabase &db) {
+    return db.get_doccount();
 }
 
-docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc, int8_t &err)
+docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc)
 {
-    try
-    {
-        return db.replace_document(std::string(unique_term), doc);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return -1;
-    }
+    return db.replace_document(std::string(unique_term), doc);
 }
 
-void delete_document(WritableDatabase &db, rust::Str unique_term, int8_t &err)
+void delete_document(WritableDatabase &db, rust::Str unique_term)
 {
-    try
-    {
-        db.delete_document(std::string(unique_term));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    db.delete_document(std::string(unique_term));
 }
 
 
 ////////////////////////////////////////////////////////////////
 
-std::unique_ptr<TermGenerator> new_termgenerator(int8_t &err)
+std::unique_ptr<TermGenerator> new_termgenerator()
 {
-    try
-    {
-        err = 0;
-        return std::make_unique<TermGenerator>();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<TermGenerator>();
 }
 
-void set_stemmer(TermGenerator &tg, Stem &stem, int8_t &err)
+void set_stemmer(TermGenerator &tg, Stem &stem)
 {
-    try
-    {
-        tg.set_stemmer(stem);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    tg.set_stemmer(stem);
 }
 
-void set_flags (TermGenerator &tg, int32_t toggle, int32_t mask, int8_t &err)
+void set_flags (TermGenerator &tg, int32_t toggle, int32_t mask)
 {
-    try
-    {
-        tg.set_flags(toggle, mask);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    tg.set_flags(toggle, mask);
 }
 
-void set_document(TermGenerator &tg, Document &doc, int8_t &err)
+void set_document(TermGenerator &tg, Document &doc)
 {
-    try
-    {
-        err = 0;
-        tg.set_document(doc);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    tg.set_document(doc);
 }
 
-void index_text(TermGenerator &tg, rust::Str data, int8_t &err)
+void index_text(TermGenerator &tg, rust::Str data)
 {
-    try
-    {
-        err = 0;
-        tg.index_text(std::string(data));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    tg.index_text(std::string(data));
 }
 
-void index_text_with_prefix(TermGenerator &tg, rust::Str data, rust::Str prefix, int8_t &err)
+void index_text_with_prefix(TermGenerator &tg, rust::Str data, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        tg.index_text(std::string(data), 1, std::string(prefix));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    tg.index_text(std::string(data), 1, std::string(prefix));
 }
 
-void index_int(TermGenerator &tg, int32_t in_data, rust::Str prefix, int8_t &err)
+void index_int(TermGenerator &tg, int32_t in_data, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        tg.index_text(data, 1, std::string(prefix));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    tg.index_text(data, 1, std::string(prefix));
 }
 
-void index_long(TermGenerator &tg, int64_t in_data, rust::Str prefix, int8_t &err)
+void index_long(TermGenerator &tg, int64_t in_data, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        tg.index_text(data, 1, std::string(prefix));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    tg.index_text(data, 1, std::string(prefix));
 }
 
-void index_float(TermGenerator &tg, float in_data, rust::Str prefix, int8_t &err)
+void index_float(TermGenerator &tg, float in_data, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        tg.index_text(data, 1, std::string(prefix));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    tg.index_text(data, 1, std::string(prefix));
 }
 
-void index_double(TermGenerator &tg, double in_data, rust::Str prefix, int8_t &err)
+void index_double(TermGenerator &tg, double in_data, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        tg.index_text(data, 1, std::string(prefix));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    tg.index_text(data, 1, std::string(prefix));
 }
 
 ////////////////////////////////////////////////////////////////

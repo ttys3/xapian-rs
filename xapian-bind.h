@@ -34,28 +34,28 @@ void add_database(Database &db, Database &add_db);
 void database_close(Database &db);
 
 //
-std::unique_ptr<Stem> new_stem(rust::Str lang, int8_t &err);
+std::unique_ptr<Stem> new_stem(rust::Str lang);
 
 //
 std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path, int32_t action, int32_t db_type);
 void commit (WritableDatabase &db);
-void close (WritableDatabase &db, int8_t &err);
-docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc,  int8_t &err);
-void delete_document(WritableDatabase &db, rust::Str unique_term, int8_t &err);
+void close (WritableDatabase &db);
+docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc);
+void delete_document(WritableDatabase &db, rust::Str unique_term);
 const std::string &get_db_description (WritableDatabase &db);
-int32_t get_doccount (WritableDatabase &db, int8_t &err);
+int32_t get_doccount (WritableDatabase &db);
 
 //
-std::unique_ptr<TermGenerator> new_termgenerator(int8_t &err);
-void set_stemmer (TermGenerator &tg, Stem &stem, int8_t &err);
-void set_flags (TermGenerator &tg, int32_t toggle, int32_t mask, int8_t &err);
-void set_document (TermGenerator &tg, Document &doc, int8_t &err);
-void index_text_with_prefix (TermGenerator &tg, rust::Str data, rust::Str prefix, int8_t &err);
-void index_text (TermGenerator &tg, rust::Str data, int8_t &err);
-void index_int (TermGenerator &tg, int32_t data, rust::Str prefix, int8_t &err);
-void index_long (TermGenerator &tg, int64_t data, rust::Str prefix, int8_t &err);
-void index_float(TermGenerator &tg, float in_data, rust::Str prefix, int8_t &err);
-void index_double (TermGenerator &tg, double data, rust::Str prefix, int8_t &err);
+std::unique_ptr<TermGenerator> new_termgenerator();
+void set_stemmer (TermGenerator &tg, Stem &stem);
+void set_flags (TermGenerator &tg, int32_t toggle, int32_t mask);
+void set_document (TermGenerator &tg, Document &doc);
+void index_text_with_prefix (TermGenerator &tg, rust::Str data, rust::Str prefix);
+void index_text (TermGenerator &tg, rust::Str data);
+void index_int (TermGenerator &tg, int32_t data, rust::Str prefix);
+void index_long (TermGenerator &tg, int64_t data, rust::Str prefix);
+void index_float(TermGenerator &tg, float in_data, rust::Str prefix);
+void index_double (TermGenerator &tg, double data, rust::Str prefix);
 
 //
 std::unique_ptr<Document> new_document (int8_t &err);

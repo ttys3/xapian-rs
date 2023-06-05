@@ -440,25 +440,25 @@ pub(crate) mod ffi {
         pub(crate) fn new_enquire(db: Pin<&mut Database>) -> Result<UniquePtr<Enquire>>;
         pub(crate) fn add_database(db: Pin<&mut Database>, add_db: Pin<&mut Database>) -> Result<()>;
 
-        pub(crate) fn new_stem(lang: &str, err: &mut i8) -> UniquePtr<Stem>;
+        pub(crate) fn new_stem(lang: &str) -> Result<UniquePtr<Stem>>;
 
         pub(crate) fn new_writable_database_with_path(path: &str, action: i32, db_type: i32) -> Result<UniquePtr<WritableDatabase>>;
         pub(crate) fn commit(db: Pin<&mut WritableDatabase>) -> Result<()>;
-        pub(crate) fn close(db: Pin<&mut WritableDatabase>, err: &mut i8);
-        pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>, err: &mut i8) -> u32;
-        pub(crate) fn delete_document(db: Pin<&mut WritableDatabase>, unique_term: &str, err: &mut i8);
-        pub(crate) fn get_doccount(db: Pin<&mut WritableDatabase>, err: &mut i8) -> i32;
+        pub(crate) fn close(db: Pin<&mut WritableDatabase>) -> Result<()>;
+        pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>) -> Result<u32>;
+        pub(crate) fn delete_document(db: Pin<&mut WritableDatabase>, unique_term: &str) -> Result<()>;
+        pub(crate) fn get_doccount(db: Pin<&mut WritableDatabase>) -> Result<i32>;
 
-        pub(crate) fn new_termgenerator(err: &mut i8) -> UniquePtr<TermGenerator>;
-        pub(crate) fn set_stemmer(tg: Pin<&mut TermGenerator>, stem: Pin<&mut Stem>, err: &mut i8);
-        pub(crate) fn set_flags(tg: Pin<&mut TermGenerator>, toggle: i32, mask: i32, err: &mut i8);
-        pub(crate) fn set_document(tg: Pin<&mut TermGenerator>, doc: Pin<&mut Document>, err: &mut i8);
-        pub(crate) fn index_text_with_prefix(tg: Pin<&mut TermGenerator>, data: &str, prefix: &str, err: &mut i8);
-        pub(crate) fn index_text(tg: Pin<&mut TermGenerator>, data: &str, err: &mut i8);
-        pub(crate) fn index_int(tg: Pin<&mut TermGenerator>, data: i32, prefix: &str, err: &mut i8);
-        pub(crate) fn index_long(tg: Pin<&mut TermGenerator>, data: i64, prefix: &str, err: &mut i8);
-        pub(crate) fn index_float(tg: Pin<&mut TermGenerator>, data: f32, prefix: &str, err: &mut i8);
-        pub(crate) fn index_double(tg: Pin<&mut TermGenerator>, data: f64, prefix: &str, err: &mut i8);
+        pub(crate) fn new_termgenerator() -> Result<UniquePtr<TermGenerator>>;
+        pub(crate) fn set_stemmer(tg: Pin<&mut TermGenerator>, stem: Pin<&mut Stem>) -> Result<()>;
+        pub(crate) fn set_flags(tg: Pin<&mut TermGenerator>, toggle: i32, mask: i32) -> Result<()>;
+        pub(crate) fn set_document(tg: Pin<&mut TermGenerator>, doc: Pin<&mut Document>) -> Result<()>;
+        pub(crate) fn index_text_with_prefix(tg: Pin<&mut TermGenerator>, data: &str, prefix: &str) -> Result<()>;
+        pub(crate) fn index_text(tg: Pin<&mut TermGenerator>, data: &str)-> Result<()>;
+        pub(crate) fn index_int(tg: Pin<&mut TermGenerator>, data: i32, prefix: &str)-> Result<()>;
+        pub(crate) fn index_long(tg: Pin<&mut TermGenerator>, data: i64, prefix: &str)-> Result<()>;
+        pub(crate) fn index_float(tg: Pin<&mut TermGenerator>, data: f32, prefix: &str)-> Result<()>;
+        pub(crate) fn index_double(tg: Pin<&mut TermGenerator>, data: f64, prefix: &str)-> Result<()>;
 
         pub(crate) fn new_document(err: &mut i8) -> UniquePtr<Document>;
         pub(crate) fn add_string(doc: Pin<&mut Document>, slot: u32, data: &str, err: &mut i8);
@@ -1066,47 +1066,28 @@ impl WritableDatabase {
         }
     }
 
-    pub fn delete_document(&mut self, unique_term: &str) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::delete_document(self.cxxp.pin_mut(), unique_term, &mut err);
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn delete_document(&mut self, unique_term: &str) -> Result<(), cxx::Exception> {
+        ffi::delete_document(self.cxxp.pin_mut(), unique_term)?;
         Ok(())
     }
 
-    pub fn replace_document(&mut self, unique_term: &str, doc: &mut Document) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::replace_document(self.cxxp.pin_mut(), unique_term, doc.cxxp.pin_mut(), &mut err);
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
-        Ok(())
+    pub fn replace_document(&mut self, unique_term: &str, doc: &mut Document) -> Result<u32, cxx::Exception> {
+        let docid = ffi::replace_document(self.cxxp.pin_mut(), unique_term, doc.cxxp.pin_mut())?;
+        Ok(docid)
     }
 
     pub fn commit(&mut self) -> Result<(), cxx::Exception> {
         ffi::commit(self.cxxp.pin_mut())
     }
 
-    pub fn close(&mut self) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::close(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn close(&mut self) -> Result<(), cxx::Exception> {
+        ffi::close(self.cxxp.pin_mut())?;
+        Ok(())
     }
 
-    pub fn get_doccount(&mut self) -> Result<i32, XError> {
-        let mut err = 0;
-        let res = ffi::get_doccount(self.cxxp.pin_mut(), &mut err);
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        } else {
-            Ok(res)
-        }
+    pub fn get_doccount(&mut self) -> Result<i32, cxx::Exception> {
+        let res = ffi::get_doccount(self.cxxp.pin_mut())?;
+        Ok(res)
     }
 }
 
@@ -1205,14 +1186,9 @@ pub struct Stem {
 
 #[allow(unused_unsafe)]
 impl Stem {
-    pub fn new(lang: &str) -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_stem(lang, &mut err);
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new(lang: &str) -> Result<Self, cxx::Exception> {
+        let obj = ffi::new_stem(lang)?;
+        Ok(Self { cxxp: obj })
     }
 }
 
@@ -1221,112 +1197,51 @@ pub struct TermGenerator {
 }
 
 impl TermGenerator {
-    pub fn new() -> Result<Self> {
-        let mut err = 0;
-        let obj = ffi::new_termgenerator(&mut err);
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new() -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_termgenerator()? })
     }
 }
 
 #[allow(unused_unsafe)]
 impl TermGenerator {
-    pub fn set_stemmer(&mut self, mut stem: Stem) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::set_stemmer(self.cxxp.pin_mut(), stem.cxxp.pin_mut(), &mut err);
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn set_stemmer(&mut self, mut stem: Stem) -> Result<(), cxx::Exception> {
+        ffi::set_stemmer(self.cxxp.pin_mut(), stem.cxxp.pin_mut())?;
         Ok(())
     }
 
-    pub fn set_flags(&mut self, toggle: i32, mask: i32) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::set_flags(self.cxxp.pin_mut(), toggle as i32, mask as i32, &mut err);
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn set_flags(&mut self, toggle: i32, mask: i32) -> Result<(), cxx::Exception> {
+        ffi::set_flags(self.cxxp.pin_mut(), toggle as i32, mask as i32)?;
         Ok(())
     }
 
-    pub fn set_document(&mut self, doc: &mut Document) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::set_document(self.cxxp.pin_mut(), doc.cxxp.pin_mut(), &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn set_document(&mut self, doc: &mut Document) -> Result<(), cxx::Exception> {
+        ffi::set_document(self.cxxp.pin_mut(), doc.cxxp.pin_mut());
         Ok(())
     }
 
-    pub fn index_text_with_prefix(&mut self, data: &str, prefix: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::index_text_with_prefix(self.cxxp.pin_mut(), data, prefix, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn index_text_with_prefix(&mut self, data: &str, prefix: &str) -> Result<(), cxx::Exception> {
+        ffi::index_text_with_prefix(self.cxxp.pin_mut(), data, prefix);
         Ok(())
     }
 
-    pub fn index_text(&mut self, data: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::index_text(self.cxxp.pin_mut(), data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
-        Ok(())
+    pub fn index_text(&mut self, data: &str) -> Result<(), cxx::Exception> {
+        Ok(ffi::index_text(self.cxxp.pin_mut(), data)?)
     }
 
-    pub fn index_int(&mut self, data: i32, prefix: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::index_int(self.cxxp.pin_mut(), data, prefix, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
-        Ok(())
+    pub fn index_int(&mut self, data: i32, prefix: &str) -> Result<(), cxx::Exception> {
+        Ok(ffi::index_int(self.cxxp.pin_mut(), data, prefix)?)
     }
 
-    pub fn index_long(&mut self, data: i64, prefix: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::index_long(self.cxxp.pin_mut(), data, prefix, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
-        Ok(())
+    pub fn index_long(&mut self, data: i64, prefix: &str) -> Result<(), cxx::Exception> {
+        Ok(ffi::index_long(self.cxxp.pin_mut(), data, prefix)?)
     }
 
-    pub fn index_float(&mut self, data: f32, prefix: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::index_float(self.cxxp.pin_mut(), data, prefix, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
-        Ok(())
+    pub fn index_float(&mut self, data: f32, prefix: &str) -> Result<(), cxx::Exception> {
+        Ok(ffi::index_float(self.cxxp.pin_mut(), data, prefix)?)
     }
 
-    pub fn index_double(&mut self, data: f64, prefix: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::index_double(self.cxxp.pin_mut(), data, prefix, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
-        Ok(())
+    pub fn index_double(&mut self, data: f64, prefix: &str) -> Result<(), cxx::Exception> {
+        Ok(ffi::index_double(self.cxxp.pin_mut(), data, prefix)?)
     }
 }
 
