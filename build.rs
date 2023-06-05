@@ -27,7 +27,11 @@ fn main() {
     }
 
     let manifest_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
-    let xapian_include_dir = Path::new(&manifest_dir).join("include");
+    let xapian_include_dir = if vendored_xapian {
+        Path::new(&manifest_dir).join("xapian/xapian-core/include")
+    } else {
+        Path::new(&manifest_dir).join("include")
+    };
     CFG.exported_header_dirs.push(&xapian_include_dir);
 
     // https://docs.rs/cc/1.0.79/cc/struct.Build.html#method.compile
