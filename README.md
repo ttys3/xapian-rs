@@ -36,4 +36,10 @@ Process finished with exit code 134 (interrupted by signal 6: SIGABRT)
 
 solution:
 
-do not throw `Xapian::Error` in C++ code, use std exception instead.
+do not use  `Error e` in `rust::behavior::trycatch` C++ code, use `const Xapian::Error& e` instead.
+
+reason:
+
+`Error` is defined in generated `target/cxxbridge/rust/cxx.h` file under `rust` namespace.
+
+use `Xapian::Error` will fix the problem.

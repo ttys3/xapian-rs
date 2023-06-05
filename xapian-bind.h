@@ -16,8 +16,10 @@ namespace rust::behavior {
     template <typename Try, typename Fail>
     static void trycatch(Try &&func, Fail &&fail) noexcept try {
         func();
-    } catch (::std::exception const &e) {
-    fail(e.what());
+    } catch (const Xapian::Error& e) {
+        fail("[Xapian Error] " + std::string(e.get_type()) + ": " + e.get_msg());
+    } catch (const std::exception &e) {
+        fail(e.what());
     }
 }
 
