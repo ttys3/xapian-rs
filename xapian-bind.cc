@@ -81,17 +81,7 @@ std::unique_ptr<Database> new_database(int8_t &err)
 
 std::unique_ptr<Database> new_database_with_path(rust::Str path, int32_t db_type, int8_t &err)
 {
-    try
-    {
-        err = 0;
-
-        return std::make_unique<Database>(std::string(path), db_type);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Database>(std::string(path), db_type);
 }
 
 void add_database(Database &db, Database &add_db, int8_t &err)

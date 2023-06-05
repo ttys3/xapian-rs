@@ -1,5 +1,5 @@
+use std::env;
 use cxx_build::CFG;
-use std::{env, os};
 use std::path::Path;
 
 fn main() {
