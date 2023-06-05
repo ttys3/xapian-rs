@@ -50,9 +50,10 @@ fn main() {
         println!("cargo:rustc-link-lib=static=xapian-1.5");
         println!("cargo:rustc-link-lib=dylib=xapian-1.5");
         // export LD_LIBRARY_PATH=xapian/xapian-core/.libs
+    } else {
+        println!("cargo:rustc-link-lib=xapian");
     }
 
-    println!("cargo:rustc-link-lib=xapian");
     println!("cargo:rustc-link-lib=m");
 
     println!("cargo:rerun-if-changed=xapian-bind.cc");
