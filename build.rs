@@ -1,10 +1,29 @@
 use cxx_build::CFG;
-use std::env;
+use std::{env, os};
 use std::path::Path;
 
 fn main() {
     if cfg!(trybuild) {
         return;
+    }
+
+    let mut vendored_xapian = env::var("CARGO_FEATURE_VENDORED_XAPIAN").is_ok();
+    let try_to_use_system_xapian = !vendored_xapian;
+
+    // sudo dnf install -y xapian-core-devel xapian-core-libs
+    if try_to_use_system_xapian {
+        let mut cfg = pkg_config::Config::new();
+        // /usr/lib64/pkgconfig/xapian-core.pc
+        // pkg-config --modversion xapian-core
+        if let Ok(lib) = cfg.range_version("1.4.0".."1.5.0").probe("xapian-core") {
+            for include in &lib.include_paths {
+                println!("cargo:root={}", include.display());
+            }
+            println!("cargo:info=Found system xapian");
+        } else {
+            println!("cargo:warning=Failed to find system xapian, falling back to vendored");
+            vendored_xapian = true;
+        }
     }
 
     let manifest_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
@@ -26,11 +45,13 @@ fn main() {
 
     // external lib
     // static, dylib, framework, link-arg
-    // println!("cargo:rustc-link-search=all=xapian/xapian-core/.libs");
-    // println!("cargo:rustc-link-lib=static=xapian-1.5");
-    // println!("cargo:rustc-link-lib=dylib=xapian-1.5");
+    if vendored_xapian {
+        println!("cargo:rustc-link-search=all=xapian/xapian-core/.libs");
+        println!("cargo:rustc-link-lib=static=xapian-1.5");
+        println!("cargo:rustc-link-lib=dylib=xapian-1.5");
+        // export LD_LIBRARY_PATH=xapian/xapian-core/.libs
+    }
 
-    // sudo dnf install -y xapian-core-devel xapian-core-libs
     println!("cargo:rustc-link-lib=xapian");
     println!("cargo:rustc-link-lib=m");
 
