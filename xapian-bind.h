@@ -6,7 +6,6 @@
 #include <string.h>
 
 #include <stdexcept>
-#include <exception>
 
 // ref https://github.com/brson/wasm-opt-rs/blob/66b161e294bb332947f8319993ae1f8d3498e1e8/components/wasm-opt-cxx-sys/src/shims.h#L13
 // https://brson.github.io/2022/10/26/creating-wasm-opt-rust-bindings-with-cxx
