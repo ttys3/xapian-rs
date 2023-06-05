@@ -433,12 +433,12 @@ pub(crate) mod ffi {
     unsafe extern "C++" {
         include!("xapian/xapian-bind.h");
 
-        pub(crate) fn new_database(err: &mut i8) -> UniquePtr<Database>;
-        pub(crate) fn new_database_with_path(path: &str, db_type: i32, err: &mut i8) -> UniquePtr<Database>;
-        pub(crate) fn database_reopen(db: Pin<&mut Database>, err: &mut i8);
-        pub(crate) fn database_close(db: Pin<&mut Database>, err: &mut i8);
-        pub(crate) fn new_enquire(db: Pin<&mut Database>, err: &mut i8) -> UniquePtr<Enquire>;
-        pub(crate) fn add_database(db: Pin<&mut Database>, add_db: Pin<&mut Database>, err: &mut i8);
+        pub(crate) fn new_database() -> Result<UniquePtr<Database>>;
+        pub(crate) fn new_database_with_path(path: &str, db_type: i32) -> Result<UniquePtr<Database>>;
+        pub(crate) fn database_reopen(db: Pin<&mut Database>) -> Result<()>;
+        pub(crate) fn database_close(db: Pin<&mut Database>) -> Result<()>;
+        pub(crate) fn new_enquire(db: Pin<&mut Database>) -> Result<UniquePtr<Enquire>>;
+        pub(crate) fn add_database(db: Pin<&mut Database>, add_db: Pin<&mut Database>) -> Result<()>;
 
         pub(crate) fn new_stem(lang: &str, err: &mut i8) -> UniquePtr<Stem>;
 
@@ -1024,70 +1024,32 @@ pub struct Database {
 
 #[allow(unused_unsafe)]
 impl Database {
-    pub fn new() -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_database(&mut err);
+    pub fn new() -> Result<Self, cxx::Exception> {
 
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+        Ok(Self { cxxp: ffi::new_database()? })
     }
 
-    pub fn new_with_path(path: &str, db_type: i32) -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_database_with_path(path, db_type, &mut err);
-
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new_with_path(path: &str, db_type: i32) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_database_with_path(path, db_type)? })
     }
 
-    pub fn new_enquire(&mut self) -> Result<Enquire, XError> {
-        let mut err = 0;
-        let obj = ffi::new_enquire(self.cxxp.pin_mut(), &mut err);
+    pub fn new_enquire(&mut self) -> Result<Enquire, cxx::Exception> {
+        let obj = ffi::new_enquire(self.cxxp.pin_mut())?;
 
-        if err == 0 {
-            Ok(Enquire { cxxp: obj, sorter: None })
-        } else {
-            Err(XError::Xapian(err))
-        }
+        Ok(Enquire { cxxp: obj, sorter: None })
     }
 
-    pub fn add_database(&mut self, database: &mut Database) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::add_database(self.cxxp.pin_mut(), database.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn add_database(&mut self, database: &mut Database) -> Result<(), cxx::Exception> {
+        ffi::add_database(self.cxxp.pin_mut(), database.cxxp.pin_mut())?;
+        Ok(())
     }
 
-    pub fn reopen(&mut self) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::database_reopen(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn reopen(&mut self) -> Result<(), cxx::Exception> {
+        Ok(ffi::database_reopen(self.cxxp.pin_mut())?)
     }
 
-    pub fn close(&mut self) -> Result<(), XError> {
-        let mut err = 0;
-        ffi::database_close(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn close(&mut self) -> Result<(), cxx::Exception> {
+       Ok(ffi::database_close(self.cxxp.pin_mut())?)
     }
 }
 

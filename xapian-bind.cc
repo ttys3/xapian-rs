@@ -65,73 +65,34 @@ const int DB_CREATE = 2;
 /** Overwrite existing db; create if none exists. */
 const int DB_CREATE_OR_OVERWRITE = 3;
 
-std::unique_ptr<Database> new_database(int8_t &err)
+std::unique_ptr<Database> new_database()
 {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Database>();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Xapian::Database>();
 }
 
-std::unique_ptr<Database> new_database_with_path(rust::Str path, int32_t db_type, int8_t &err)
+std::unique_ptr<Database> new_database_with_path(rust::Str path, int32_t db_type)
 {
     return std::make_unique<Database>(std::string(path), db_type);
 }
 
-void add_database(Database &db, Database &add_db, int8_t &err)
+void add_database(Database &db, Database &add_db)
 {
-    try
-    {
-        db.add_database(add_db);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    db.add_database(add_db);
 }
 
-void database_close(Database &db, int8_t &err)
+void database_close(Database &db)
 {
-    try
-    {
-        db.close();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    db.close();
 }
 
-void database_reopen(Database &db, int8_t &err)
+void database_reopen(Database &db)
 {
-    try
-    {
-        db.reopen();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    db.reopen();
 }
 
-std::unique_ptr<Enquire> new_enquire(Database &db, int8_t &err)
+std::unique_ptr<Enquire> new_enquire(Database &db)
 {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Enquire>(db);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Xapian::Enquire>(db);
 }
 
 
