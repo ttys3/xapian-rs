@@ -15,10 +15,10 @@ fn main() {
                     println!("commit error: {}", e);
                 }
             }
-            db.close().expect("Error closing database");
+            db.close().unwrap();
         }
-        Err(_) => {
-            println!("open WritableDatabase error");
+        Err(e) => {
+            println!("open WritableDatabase error: {}", e);
         }
     }
 }
