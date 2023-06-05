@@ -8,6 +8,11 @@
 
 using namespace Xapian;
 
+void throw_std_exception(Error &ex)
+{
+    throw std::runtime_error(std::string(ex.get_type()) + ": " + ex.get_msg());
+}
+
 char get_err_code(const char *type)
 {
     signed char err = 0;
@@ -176,7 +181,7 @@ void commit(WritableDatabase &db)
     }
     catch (Error ex)
     {
-        throw ex;
+        throw_std_exception(ex);
     }
 }
 

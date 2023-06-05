@@ -16,10 +16,8 @@ namespace rust::behavior {
     template <typename Try, typename Fail>
     static void trycatch(Try &&func, Fail &&fail) noexcept try {
         func();
-    } catch (Error &ex) {
-        fail(ex.what());
     } catch (::std::exception const &e) {
-        fail(e.what());
+    fail(e.what());
     }
 }
 

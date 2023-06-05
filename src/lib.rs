@@ -1123,10 +1123,7 @@ impl WritableDatabase {
     }
 
     pub fn commit(&mut self) -> Result<(), cxx::Exception> {
-        match ffi::commit(self.cxxp.pin_mut()) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
+        ffi::commit(self.cxxp.pin_mut())
     }
 
     pub fn close(&mut self) -> Result<(), XError> {
