@@ -25,3 +25,15 @@ cxx tuts https://cxx.rs/tutorial.html
 new version news: https://lists.xapian.org/pipermail/xapian-discuss/2023-March/009961.html
 
 xapian api docs: https://xapian.org/docs/apidoc/
+
+## troubleshooting
+
+```
+terminate called without an active exception
+
+Process finished with exit code 134 (interrupted by signal 6: SIGABRT)
+```
+
+solution:
+
+do not throw `Xapian::Error` in C++ code, use std exception instead.
