@@ -447,7 +447,7 @@ pub(crate) mod ffi {
         pub(crate) fn close(db: Pin<&mut WritableDatabase>) -> Result<()>;
         pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>) -> Result<usize>;
         pub(crate) fn delete_document(db: Pin<&mut WritableDatabase>, unique_term: &str) -> Result<()>;
-        pub(crate) fn get_doccount(db: Pin<&mut WritableDatabase>) -> Result<i32>;
+        pub(crate) fn get_doccount(db: Pin<&mut WritableDatabase>) -> Result<usize>;
 
         pub(crate) fn new_termgenerator() -> Result<UniquePtr<TermGenerator>>;
         pub(crate) fn set_stemmer(tg: Pin<&mut TermGenerator>, stem: Pin<&mut Stem>) -> Result<()>;
@@ -1085,7 +1085,7 @@ impl WritableDatabase {
         Ok(())
     }
 
-    pub fn get_doccount(&mut self) -> Result<i32, cxx::Exception> {
+    pub fn get_doccount(&mut self) -> Result<usize, cxx::Exception> {
         let res = ffi::get_doccount(self.cxxp.pin_mut())?;
         Ok(res)
     }

@@ -127,7 +127,7 @@ void close(WritableDatabase &db)
     db.close();
 }
 
-int32_t get_doccount (WritableDatabase &db) {
+ulong get_doccount (WritableDatabase &db) {
     return db.get_doccount();
 }
 

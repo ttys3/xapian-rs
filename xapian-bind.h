@@ -43,7 +43,7 @@ void close (WritableDatabase &db);
 docid replace_document(WritableDatabase &db, rust::Str unique_term, Document &doc);
 void delete_document(WritableDatabase &db, rust::Str unique_term);
 const std::string &get_db_description (WritableDatabase &db);
-int32_t get_doccount (WritableDatabase &db);
+ulong get_doccount (WritableDatabase &db);
 
 //
 std::unique_ptr<TermGenerator> new_termgenerator();
