@@ -1,13 +1,13 @@
-use std::fmt::{Debug, format};
+use anyhow::Result;
+use chrono::{DateTime, Datelike, NaiveDateTime, Utc};
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, to_string, Value};
+use std::fmt::{format, Debug};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use xapian::{Database, WritableDatabase};
-use serde::{Serialize, Deserialize};
-use serde_json::{from_str, to_string, Value};
-use chrono::{Datelike, DateTime, NaiveDateTime, Utc};
-use anyhow::Result;
 
-fn main()  -> Result<()> {
+fn main() -> Result<()> {
     let qs = "overview:gangsters year:1972..1975";
     // let qs = "id:14236";
     let offset = 0;
@@ -15,8 +15,7 @@ fn main()  -> Result<()> {
 
     // automatically determining the database backend to use
     let _ = std::fs::create_dir_all("./data");
-    let mut db = Database::new_with_path("./data/xapian-movie", 0)
-        .expect("Error opening database");
+    let mut db = Database::new_with_path("./data/xapian-movie", 0).expect("Error opening database");
 
     // let doc_count = db.get_doccount().expect("Error getting doc count");
     // println!("doc count: {}", doc_count);
@@ -38,11 +37,14 @@ fn main()  -> Result<()> {
 
     qp.add_boolean_prefix("id", "Q");
 
-
     let qp_flags = xapian::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM as i32;
-    println!("qp_flags: {:?} | {:?} = {:?}", xapian::QueryParserFeatureFlag::FLAG_DEFAULT, xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM, qp_flags);
-    let mut query = qp.parse_query(qs, qp_flags)
-        .expect("Error parsing query");
+    println!(
+        "qp_flags: {:?} | {:?} = {:?}",
+        xapian::QueryParserFeatureFlag::FLAG_DEFAULT,
+        xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM,
+        qp_flags
+    );
+    let mut query = qp.parse_query(qs, qp_flags).expect("Error parsing query");
 
     let mut enquire = db.new_enquire().expect("Error creating enquire");
     enquire.set_query(&mut query).expect("set_query failed");
@@ -70,7 +72,10 @@ fn main()  -> Result<()> {
         // 	// Too easy!
         // 	return text;
         //     }
-        println!("snippet: {:?}", mset.snippet(movie.overview.as_str(), 100, &mut stem, snippet_flags, "<b>", "</b>", "..."));
+        println!(
+            "snippet: {:?}",
+            mset.snippet(movie.overview.as_str(), 100, &mut stem, snippet_flags, "<b>", "</b>", "...")
+        );
         println!("movie: {:?}", movie);
         it.next();
     }
@@ -93,7 +98,6 @@ fn main()  -> Result<()> {
     println!("search test ok");
     Ok(())
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Movie {

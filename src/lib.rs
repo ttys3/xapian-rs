@@ -39,8 +39,7 @@ pub const DB_BACKEND_INMEMORY: i32 = 0x400;
 *  as equivalent functionality to that provided by the namespaced open()
 *  functions in Xapian 1.2.
  */
-pub const DB_BACKEND_HONEY: i32	 = 0x500;
-
+pub const DB_BACKEND_HONEY: i32 = 0x500;
 
 /** Create database if it doesn't already exist.
  *
@@ -455,20 +454,20 @@ pub(crate) mod ffi {
         pub(crate) fn set_flags(tg: Pin<&mut TermGenerator>, toggle: i32, mask: i32) -> Result<()>;
         pub(crate) fn set_document(tg: Pin<&mut TermGenerator>, doc: Pin<&mut Document>) -> Result<()>;
         pub(crate) fn index_text_with_prefix(tg: Pin<&mut TermGenerator>, data: &str, prefix: &str) -> Result<()>;
-        pub(crate) fn index_text(tg: Pin<&mut TermGenerator>, data: &str)-> Result<()>;
-        pub(crate) fn index_int(tg: Pin<&mut TermGenerator>, data: i32, prefix: &str)-> Result<()>;
-        pub(crate) fn index_long(tg: Pin<&mut TermGenerator>, data: i64, prefix: &str)-> Result<()>;
-        pub(crate) fn index_float(tg: Pin<&mut TermGenerator>, data: f32, prefix: &str)-> Result<()>;
-        pub(crate) fn index_double(tg: Pin<&mut TermGenerator>, data: f64, prefix: &str)-> Result<()>;
+        pub(crate) fn index_text(tg: Pin<&mut TermGenerator>, data: &str) -> Result<()>;
+        pub(crate) fn index_int(tg: Pin<&mut TermGenerator>, data: i32, prefix: &str) -> Result<()>;
+        pub(crate) fn index_long(tg: Pin<&mut TermGenerator>, data: i64, prefix: &str) -> Result<()>;
+        pub(crate) fn index_float(tg: Pin<&mut TermGenerator>, data: f32, prefix: &str) -> Result<()>;
+        pub(crate) fn index_double(tg: Pin<&mut TermGenerator>, data: f64, prefix: &str) -> Result<()>;
 
         pub(crate) fn new_document() -> Result<UniquePtr<Document>>;
-        pub(crate) fn add_string(doc: Pin<&mut Document>, slot: u32, data: &str)-> Result<()>;
-        pub(crate) fn add_int(doc: Pin<&mut Document>, slot: u32, data: i32)-> Result<()>;
-        pub(crate) fn add_long(doc: Pin<&mut Document>, slot: u32, data: i64)-> Result<()>;
-        pub(crate) fn add_double(doc: Pin<&mut Document>, slot: u32, data: f64)-> Result<()>;
-        pub(crate) fn set_data(doc: Pin<&mut Document>, data: &str)-> Result<()>;
+        pub(crate) fn add_string(doc: Pin<&mut Document>, slot: u32, data: &str) -> Result<()>;
+        pub(crate) fn add_int(doc: Pin<&mut Document>, slot: u32, data: i32) -> Result<()>;
+        pub(crate) fn add_long(doc: Pin<&mut Document>, slot: u32, data: i64) -> Result<()>;
+        pub(crate) fn add_double(doc: Pin<&mut Document>, slot: u32, data: f64) -> Result<()>;
+        pub(crate) fn set_data(doc: Pin<&mut Document>, data: &str) -> Result<()>;
         pub(crate) fn get_doc_data(doc: Pin<&mut Document>) -> Result<&CxxString>;
-        pub(crate) fn add_boolean_term(doc: Pin<&mut Document>, data: &str)-> Result<()>;
+        pub(crate) fn add_boolean_term(doc: Pin<&mut Document>, data: &str) -> Result<()>;
 
         pub(crate) fn get_matches_estimated(set: Pin<&mut MSet>) -> Result<i32>;
         pub(crate) fn mset_size(set: Pin<&mut MSet>) -> Result<i32>;
@@ -492,30 +491,30 @@ pub(crate) mod ffi {
         // pub(crate) fn get_doc_by_index(set: Pin<&mut MSet>, index: i32) -> Result<UniquePtr<Document>>;
 
         pub(crate) fn get_mset(en: Pin<&mut Enquire>, from: i32, size: i32) -> Result<UniquePtr<MSet>>;
-        pub(crate) fn set_query(en: Pin<&mut Enquire>, query: Pin<&mut Query>)-> Result<()>;
-        pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool)-> Result<()>;
-        pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>)->Result<()>;
+        pub(crate) fn set_query(en: Pin<&mut Enquire>, query: Pin<&mut Query>) -> Result<()>;
+        pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool) -> Result<()>;
+        pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>) -> Result<()>;
 
         pub(crate) fn new_query_parser() -> Result<UniquePtr<QueryParser>>;
-        pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32)-> Result<()>;
-        pub(crate) fn set_stemmer_to_qp(qp: Pin<&mut QueryParser>, stem: Pin<&mut Stem>)-> Result<()>;
-        pub(crate) fn set_database(qp: Pin<&mut QueryParser>, add_db: Pin<&mut Database>)-> Result<()>;
-        pub(crate) fn add_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str)-> Result<()>;
-        pub(crate) fn add_boolean_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str)-> Result<()>;
-        pub(crate) fn add_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut RangeProcessor>)-> Result<()>;
-        pub(crate) fn add_number_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut NumberRangeProcessor>)-> Result<()>;
+        pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32) -> Result<()>;
+        pub(crate) fn set_stemmer_to_qp(qp: Pin<&mut QueryParser>, stem: Pin<&mut Stem>) -> Result<()>;
+        pub(crate) fn set_database(qp: Pin<&mut QueryParser>, add_db: Pin<&mut Database>) -> Result<()>;
+        pub(crate) fn add_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str) -> Result<()>;
+        pub(crate) fn add_boolean_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str) -> Result<()>;
+        pub(crate) fn add_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut RangeProcessor>) -> Result<()>;
+        pub(crate) fn add_number_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut NumberRangeProcessor>) -> Result<()>;
         pub(crate) fn parse_query(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32) -> Result<UniquePtr<Query>>;
         pub(crate) fn parse_query_with_prefix(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32, prefix: &str) -> Result<UniquePtr<Query>>;
 
         pub(crate) fn new_query() -> Result<UniquePtr<Query>>;
         pub(crate) fn new_query_range(op: i32, slot: u32, begin: f64, end: f64) -> Result<UniquePtr<Query>>;
-        pub(crate) fn add_right_query(this_q: Pin<&mut Query>, op: i32, q: Pin<&mut Query>) ->Result<UniquePtr<Query>>;
+        pub(crate) fn add_right_query(this_q: Pin<&mut Query>, op: i32, q: Pin<&mut Query>) -> Result<UniquePtr<Query>>;
         pub(crate) fn new_query_double_with_prefix(prefix: &str, d: f64) -> Result<UniquePtr<Query>>;
         pub(crate) fn query_is_empty(this_q: Pin<&mut Query>) -> bool;
         pub(crate) fn get_description(this_q: Pin<&mut Query>) -> &CxxString;
 
         pub(crate) fn new_multi_value_key_maker() -> Result<UniquePtr<MultiValueKeyMaker>>;
-        pub(crate) fn add_value_to_multi_value_key_maker(this_m: Pin<&mut MultiValueKeyMaker>, slot: u32, asc_desc: bool)->Result<()>;
+        pub(crate) fn add_value_to_multi_value_key_maker(this_m: Pin<&mut MultiValueKeyMaker>, slot: u32, asc_desc: bool) -> Result<()>;
 
         pub(crate) fn new_value_count_match_spy(slot: u32) -> Result<UniquePtr<ValueCountMatchSpy>>;
         pub(crate) fn new_range_processor(slot: u32, prefix: &str, flags: i32) -> Result<UniquePtr<RangeProcessor>>;
@@ -540,7 +539,9 @@ pub struct MultiValueKeyMaker {
 
 impl MultiValueKeyMaker {
     pub fn new() -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_multi_value_key_maker()? })
+        Ok(Self {
+            cxxp: ffi::new_multi_value_key_maker()?,
+        })
     }
 
     pub fn add_value(&mut self, slot: u32, asc_desc: bool) -> Result<(), cxx::Exception> {
@@ -559,15 +560,21 @@ impl Query {
     }
 
     pub fn new_range(op: XapianOp, slot: u32, begin: f64, end: f64) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_query_range(op as i32, slot, begin, end)? })
+        Ok(Self {
+            cxxp: ffi::new_query_range(op as i32, slot, begin, end)?,
+        })
     }
 
     pub fn add_right(&mut self, op: XapianOp, q: &mut Query) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::add_right_query(self.cxxp.pin_mut(), op as i32, q.cxxp.pin_mut())? })
+        Ok(Self {
+            cxxp: ffi::add_right_query(self.cxxp.pin_mut(), op as i32, q.cxxp.pin_mut())?,
+        })
     }
 
     pub fn new_double_with_prefix(prefix: &str, d: f64) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_query_double_with_prefix(prefix, d)? })
+        Ok(Self {
+            cxxp: ffi::new_query_double_with_prefix(prefix, d)?,
+        })
     }
 
     pub fn is_empty(&mut self) -> bool {
@@ -614,7 +621,9 @@ pub struct QueryParser {
 impl QueryParser {
     pub fn new() -> Result<Self, cxx::Exception> {
         unsafe {
-            Ok(Self { cxxp: ffi::new_query_parser()?})
+            Ok(Self {
+                cxxp: ffi::new_query_parser()?,
+            })
         }
     }
 
@@ -657,12 +666,16 @@ impl QueryParser {
 
     pub fn parse_query(&mut self, query: &str, flags: i32) -> Result<Query, cxx::Exception> {
         unsafe {
-            Ok(Query { cxxp: ffi::parse_query(self.cxxp.pin_mut(), query, flags)?})
+            Ok(Query {
+                cxxp: ffi::parse_query(self.cxxp.pin_mut(), query, flags)?,
+            })
         }
     }
 
     pub fn parse_query_with_prefix(&mut self, query: &str, flags: i32, prefix: &str) -> Result<Query, cxx::Exception> {
-        Ok(Query { cxxp: ffi::parse_query_with_prefix(self.cxxp.pin_mut(), query, flags, prefix)? })
+        Ok(Query {
+            cxxp: ffi::parse_query_with_prefix(self.cxxp.pin_mut(), query, flags, prefix)?,
+        })
     }
 }
 
@@ -704,11 +717,13 @@ impl MSetIterator {
     // }
 
     pub fn get_document(&mut self) -> Result<Document, cxx::Exception> {
-        Ok(Document { cxxp: ffi::mset_iterator_get_document(self.cxxp.pin_mut())? })
+        Ok(Document {
+            cxxp: ffi::mset_iterator_get_document(self.cxxp.pin_mut())?,
+        })
     }
 
     pub fn eq(&mut self, other: &mut MSetIterator) -> Result<bool, cxx::Exception> {
-       Ok(ffi::mset_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut())?)
+        Ok(ffi::mset_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut())?)
     }
 
     pub fn next(&mut self) -> Result<(), cxx::Exception> {
@@ -733,16 +748,20 @@ impl MSet {
 
     // https://xapian.org/docs/sourcedoc/html/classXapian_1_1MSet.html#ad00d5e7f564fe0e5031cb5f89b829ffe
     pub fn begin(&mut self) -> Result<MSetIterator, cxx::Exception> {
-        Ok(MSetIterator { cxxp: ffi::mset_begin(self.cxxp.pin_mut())? })
+        Ok(MSetIterator {
+            cxxp: ffi::mset_begin(self.cxxp.pin_mut())?,
+        })
     }
 
     pub fn end(&mut self) -> Result<MSetIterator, cxx::Exception> {
-        Ok(MSetIterator { cxxp: ffi::mset_end(self.cxxp.pin_mut())?,
+        Ok(MSetIterator {
+            cxxp: ffi::mset_end(self.cxxp.pin_mut())?,
         })
     }
 
     pub fn back(&mut self) -> Result<MSetIterator, cxx::Exception> {
-        Ok(MSetIterator { cxxp: ffi::mset_back(self.cxxp.pin_mut())?,
+        Ok(MSetIterator {
+            cxxp: ffi::mset_back(self.cxxp.pin_mut())?,
         })
     }
 
@@ -767,7 +786,9 @@ pub struct Enquire {
 
 impl Enquire {
     pub fn get_mset(&mut self, from: i32, size: i32) -> Result<MSet, cxx::Exception> {
-        Ok(MSet { cxxp: ffi::get_mset(self.cxxp.pin_mut(), from, size)? })
+        Ok(MSet {
+            cxxp: ffi::get_mset(self.cxxp.pin_mut(), from, size)?,
+        })
     }
 
     pub fn set_query(&mut self, query: &mut Query) -> Result<(), cxx::Exception> {
@@ -804,12 +825,13 @@ pub struct Database {
 #[allow(unused_unsafe)]
 impl Database {
     pub fn new() -> Result<Self, cxx::Exception> {
-
         Ok(Self { cxxp: ffi::new_database()? })
     }
 
     pub fn new_with_path(path: &str, db_type: i32) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_database_with_path(path, db_type)? })
+        Ok(Self {
+            cxxp: ffi::new_database_with_path(path, db_type)?,
+        })
     }
 
     pub fn new_enquire(&mut self) -> Result<Enquire, cxx::Exception> {
@@ -828,7 +850,7 @@ impl Database {
     }
 
     pub fn close(&mut self) -> Result<(), cxx::Exception> {
-       Ok(ffi::database_close(self.cxxp.pin_mut())?)
+        Ok(ffi::database_close(self.cxxp.pin_mut())?)
     }
 }
 
@@ -934,7 +956,9 @@ pub struct TermGenerator {
 
 impl TermGenerator {
     pub fn new() -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_termgenerator()? })
+        Ok(Self {
+            cxxp: ffi::new_termgenerator()?,
+        })
     }
 }
 
@@ -989,17 +1013,23 @@ pub struct ValueCountMatchSpy {
 
 impl ValueCountMatchSpy {
     pub fn new(slot: u32) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_value_count_match_spy(slot)? })
+        Ok(Self {
+            cxxp: ffi::new_value_count_match_spy(slot)?,
+        })
     }
 
     // https://xapian.org/docs/facets#toc-entry-5
     // return Xapian::TermIterator
     pub fn values_begin(&mut self) -> Result<TermIterator, cxx::Exception> {
-        Ok(TermIterator { cxxp: ffi::value_count_matchspy_values_begin(self.cxxp.pin_mut())? })
+        Ok(TermIterator {
+            cxxp: ffi::value_count_matchspy_values_begin(self.cxxp.pin_mut())?,
+        })
     }
 
     pub fn values_end(&mut self) -> Result<TermIterator, cxx::Exception> {
-        Ok(TermIterator { cxxp: ffi::value_count_matchspy_values_end(self.cxxp.pin_mut())? })
+        Ok(TermIterator {
+            cxxp: ffi::value_count_matchspy_values_end(self.cxxp.pin_mut())?,
+        })
     }
 
     pub fn get_total(&mut self) -> i32 {
@@ -1013,7 +1043,9 @@ pub struct RangeProcessor {
 
 impl RangeProcessor {
     pub fn new(slot: u32, prefix: &str, flags: RangeProcessorFlags) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_range_processor(slot, prefix, flags as i32)? })
+        Ok(Self {
+            cxxp: ffi::new_range_processor(slot, prefix, flags as i32)?,
+        })
     }
 }
 
@@ -1023,7 +1055,9 @@ pub struct NumberRangeProcessor {
 
 impl NumberRangeProcessor {
     pub fn new(slot: u32, prefix: &str, flags: RangeProcessorFlags) -> Result<Self, cxx::Exception> {
-        Ok(Self { cxxp: ffi::new_number_range_processor(slot, prefix, flags as i32)? })
+        Ok(Self {
+            cxxp: ffi::new_number_range_processor(slot, prefix, flags as i32)?,
+        })
     }
 }
 
