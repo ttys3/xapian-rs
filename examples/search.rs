@@ -65,7 +65,7 @@ fn main() -> Result<()> {
         }
         // undefined reference to `Xapian::MSet::get_doc_by_index(unsigned int)'
         let mut doc = it.get_document().expect("Error getting document");
-        let data = doc.get_data();
+        let data = doc.get_data().unwrap();
         // println!("raw doc data: {}", &data);
         let movie: Movie = from_str(&data).expect("Error parsing json");
         // if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
