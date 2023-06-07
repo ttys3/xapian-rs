@@ -58,14 +58,14 @@ void index_float(TermGenerator &tg, float in_data, rust::Str prefix);
 void index_double (TermGenerator &tg, double data, rust::Str prefix);
 
 //
-std::unique_ptr<Document> new_document (int8_t &err);
-void add_string (Document &doc, valueno slot, rust::Str data, int8_t &err);
-void add_int (Document &doc, valueno slot, int data, int8_t &err);
-void add_long(Document &doc, valueno slot, int64_t in_data, int8_t &err);
-void add_float(Document &doc, valueno slot, float in_data, int8_t &err);
-void add_double(Document &doc, valueno slot, double in_data, int8_t &err);
-void set_data (Document &doc, rust::Str data, int8_t &err);
-void add_boolean_term(Document &doc, rust::Str data, int8_t &err);
+std::unique_ptr<Document> new_document ();
+void add_string (Document &doc, valueno slot, rust::Str data);
+void add_int (Document &doc, valueno slot, int data);
+void add_long(Document &doc, valueno slot, int64_t in_data);
+void add_float(Document &doc, valueno slot, float in_data);
+void add_double(Document &doc, valueno slot, double in_data);
+void set_data (Document &doc, rust::Str data);
+void add_boolean_term(Document &doc, rust::Str data);
 const std::string &get_doc_data (Document &doc);
 
 //

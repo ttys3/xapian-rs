@@ -200,113 +200,48 @@ void index_double(TermGenerator &tg, double in_data, rust::Str prefix)
 
 ////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Document> new_document(int8_t &err)
+std::unique_ptr<Document> new_document()
 {
-    try
-    {
-        err = 0;
-        return std::make_unique<Document>();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Document>();
 }
 
-void add_string(Document &doc, valueno slot, rust::Str data, int8_t &err)
+void add_string(Document &doc, valueno slot, rust::Str data)
 {
-    try
-    {
-        err = 0;
-        doc.add_value(slot, std::string(data));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    doc.add_value(slot, std::string(data));
 }
 
-void add_int(Document &doc, valueno slot, int in_data, int8_t &err)
+void add_int(Document &doc, valueno slot, int in_data)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        doc.add_value(slot, data);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    doc.add_value(slot, data);
 }
 
-void add_long(Document &doc, valueno slot, int64_t in_data, int8_t &err)
+void add_long(Document &doc, valueno slot, int64_t in_data)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        doc.add_value(slot, data);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    doc.add_value(slot, data);
 }
 
-void add_float(Document &doc, valueno slot, float in_data, int8_t &err)
+void add_float(Document &doc, valueno slot, float in_data)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        doc.add_value(slot, data);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    doc.add_value(slot, data);
 }
 
-void add_double(Document &doc, valueno slot, double in_data, int8_t &err)
+void add_double(Document &doc, valueno slot, double in_data)
 {
-    try
-    {
-        err = 0;
-        std::string data = sortable_serialise(in_data);
-        doc.add_value(slot, data);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string data = sortable_serialise(in_data);
+    doc.add_value(slot, data);
 }
 
-void set_data(Document &doc, rust::Str data, int8_t &err)
+void set_data(Document &doc, rust::Str data)
 {
-    try
-    {
-        err = 0;
-        doc.set_data(std::string(data));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    doc.set_data(std::string(data));
 }
 
-void add_boolean_term(Document &doc, rust::Str data, int8_t &err)
+void add_boolean_term(Document &doc, rust::Str data)
 {
-    try
-    {
-        err = 0;
-        doc.add_boolean_term(std::string(data));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    doc.add_boolean_term(std::string(data));
 }
 
 std::string g_str_0;

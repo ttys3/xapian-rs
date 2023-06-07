@@ -460,14 +460,14 @@ pub(crate) mod ffi {
         pub(crate) fn index_float(tg: Pin<&mut TermGenerator>, data: f32, prefix: &str)-> Result<()>;
         pub(crate) fn index_double(tg: Pin<&mut TermGenerator>, data: f64, prefix: &str)-> Result<()>;
 
-        pub(crate) fn new_document(err: &mut i8) -> UniquePtr<Document>;
-        pub(crate) fn add_string(doc: Pin<&mut Document>, slot: u32, data: &str, err: &mut i8);
-        pub(crate) fn add_int(doc: Pin<&mut Document>, slot: u32, data: i32, err: &mut i8);
-        pub(crate) fn add_long(doc: Pin<&mut Document>, slot: u32, data: i64, err: &mut i8);
-        pub(crate) fn add_double(doc: Pin<&mut Document>, slot: u32, data: f64, err: &mut i8);
-        pub(crate) fn set_data(doc: Pin<&mut Document>, data: &str, err: &mut i8);
-        pub(crate) fn get_doc_data(doc: Pin<&mut Document>) -> &CxxString;
-        pub(crate) fn add_boolean_term(doc: Pin<&mut Document>, data: &str, err: &mut i8);
+        pub(crate) fn new_document() -> Result<UniquePtr<Document>>;
+        pub(crate) fn add_string(doc: Pin<&mut Document>, slot: u32, data: &str)-> Result<()>;
+        pub(crate) fn add_int(doc: Pin<&mut Document>, slot: u32, data: i32)-> Result<()>;
+        pub(crate) fn add_long(doc: Pin<&mut Document>, slot: u32, data: i64)-> Result<()>;
+        pub(crate) fn add_double(doc: Pin<&mut Document>, slot: u32, data: f64)-> Result<()>;
+        pub(crate) fn set_data(doc: Pin<&mut Document>, data: &str)-> Result<()>;
+        pub(crate) fn get_doc_data(doc: Pin<&mut Document>) -> Result<&CxxString>;
+        pub(crate) fn add_boolean_term(doc: Pin<&mut Document>, data: &str)-> Result<()>;
 
         pub(crate) fn get_matches_estimated(set: Pin<&mut MSet>, err: &mut i8) -> i32;
         pub(crate) fn mset_size(set: Pin<&mut MSet>, err: &mut i8) -> i32;
@@ -1097,85 +1097,42 @@ pub struct Document {
 
 #[allow(unused_unsafe)]
 impl Document {
-    pub fn new() -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_document(&mut err);
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new() -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_document()? })
     }
 
-    pub fn add_string(&mut self, slot: u32, data: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::add_string(self.cxxp.pin_mut(), slot, data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn add_string(&mut self, slot: u32, data: &str) -> Result<(), cxx::Exception> {
+        ffi::add_string(self.cxxp.pin_mut(), slot, data)?;
         Ok(())
     }
 
-    pub fn add_int(&mut self, slot: u32, data: i32) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::add_int(self.cxxp.pin_mut(), slot, data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn add_int(&mut self, slot: u32, data: i32) -> Result<(), cxx::Exception> {
+        ffi::add_int(self.cxxp.pin_mut(), slot, data)?;
         Ok(())
     }
 
-    pub fn add_long(&mut self, slot: u32, data: i64) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::add_long(self.cxxp.pin_mut(), slot, data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn add_long(&mut self, slot: u32, data: i64) -> Result<(), cxx::Exception> {
+        ffi::add_long(self.cxxp.pin_mut(), slot, data)?;
         Ok(())
     }
 
-    pub fn add_double(&mut self, slot: u32, data: f64) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::add_double(self.cxxp.pin_mut(), slot, data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn add_double(&mut self, slot: u32, data: f64) -> Result<(), cxx::Exception> {
+        ffi::add_double(self.cxxp.pin_mut(), slot, data)?;
         Ok(())
     }
 
-    pub fn set_data(&mut self, data: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::set_data(self.cxxp.pin_mut(), data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn set_data(&mut self, data: &str) -> Result<(), cxx::Exception> {
+        ffi::set_data(self.cxxp.pin_mut(), data)?;
         Ok(())
     }
 
-    pub fn get_data(&mut self) -> String {
-        let res = ffi::get_doc_data(self.cxxp.pin_mut());
-
-        res.to_string()
+    pub fn get_data(&mut self) -> Result<String, cxx::Exception> {
+        let res = ffi::get_doc_data(self.cxxp.pin_mut())?;
+        Ok(res.to_string())
     }
 
-    pub fn add_boolean_term(&mut self, data: &str) -> Result<(), XError> {
-        let mut err = 0;
-
-        ffi::add_boolean_term(self.cxxp.pin_mut(), data, &mut err);
-
-        if err < 0 {
-            return Err(XError::Xapian(err));
-        }
+    pub fn add_boolean_term(&mut self, data: &str) -> Result<(), cxx::Exception> {
+        ffi::add_boolean_term(self.cxxp.pin_mut(), data)?;
         Ok(())
     }
 }
