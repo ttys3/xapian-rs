@@ -43,3 +43,9 @@ reason:
 `Error` is defined in generated `target/cxxbridge/rust/cxx.h` file under `rust` namespace.
 
 use `Xapian::Error` will fix the problem.
+
+## xapian debug
+
+HACKING: `XAPIAN_DEBUG_LOG=-` send output to stderr, not stdout.
+
+`XAPIAN_DEBUG_FLAGS`
