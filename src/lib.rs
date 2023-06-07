@@ -445,7 +445,9 @@ pub(crate) mod ffi {
         pub(crate) fn new_writable_database_with_path(path: &str, action: i32, db_type: i32) -> Result<UniquePtr<WritableDatabase>>;
         pub(crate) fn commit(db: Pin<&mut WritableDatabase>) -> Result<()>;
         pub(crate) fn close(db: Pin<&mut WritableDatabase>) -> Result<()>;
-        pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>) -> Result<usize>;
+
+        pub(crate) fn replace_document(db: Pin<&mut WritableDatabase>, unique_term: &str, doc: Pin<&mut Document>) -> Result<u32>;
+
         pub(crate) fn delete_document(db: Pin<&mut WritableDatabase>, unique_term: &str) -> Result<()>;
         pub(crate) fn get_doccount(db: Pin<&mut WritableDatabase>) -> Result<usize>;
 
@@ -872,7 +874,7 @@ impl WritableDatabase {
         Ok(())
     }
 
-    pub fn replace_document(&mut self, unique_term: &str, doc: &mut Document) -> Result<usize, cxx::Exception> {
+    pub fn replace_document(&mut self, unique_term: &str, doc: &mut Document) -> Result<u32, cxx::Exception> {
         let docid = ffi::replace_document(self.cxxp.pin_mut(), unique_term, doc.cxxp.pin_mut())?;
         Ok(docid)
     }

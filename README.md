@@ -26,6 +26,14 @@ new version news: https://lists.xapian.org/pipermail/xapian-discuss/2023-March/0
 
 xapian api docs: https://xapian.org/docs/apidoc/
 
+## performance
+
+32bit docid
+
+```
+doc count: 31944, index doc took: 6251ms
+```
+
 ## troubleshooting
 
 ```
