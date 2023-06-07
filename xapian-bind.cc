@@ -262,135 +262,51 @@ const std::string &get_doc_data (Document &doc) {
 
 //////
 
-std::unique_ptr<QueryParser> new_query_parser(int8_t &err)
+std::unique_ptr<QueryParser> new_query_parser()
 {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::QueryParser>();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Xapian::QueryParser>();
 }
 
-void set_max_wildcard_expansion(QueryParser &qp, int32_t limit, int8_t &err) {
-    try
-    {
-        err = 0;
-        qp.set_max_expansion (limit, Query::WILDCARD_LIMIT_MOST_FREQUENT, QueryParser::FLAG_WILDCARD);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return;
-    }
+void set_max_wildcard_expansion(QueryParser &qp, int32_t limit) {
+    qp.set_max_expansion (limit, Query::WILDCARD_LIMIT_MOST_FREQUENT, QueryParser::FLAG_WILDCARD);
 }
 
-void set_stemmer_to_qp(QueryParser &qp, Stem &stem, int8_t &err) {
-    try
-    {
-        err = 0;
-        qp.set_stemmer(stem);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void set_stemmer_to_qp(QueryParser &qp, Stem &stem) {
+    qp.set_stemmer(stem);
 }
 
-void set_database(QueryParser &qp, Database &db, int8_t &err)
+void set_database(QueryParser &qp, Database &db)
 {
-    try
-    {
-        err = 0;
-        qp.set_database(db);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    qp.set_database(db);
 }
 
-void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
+void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        qp.add_prefix(std::string(field), std::string(prefix));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    qp.add_prefix(std::string(field), std::string(prefix));
 }
 
-void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc, int8_t &err) {
-    try
-    {
-        err = 0;
-        std::string empty_grouping;
-        qp.add_rangeprocessor(&range_proc, &empty_grouping);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc) {
+    std::string empty_grouping;
+    qp.add_rangeprocessor(&range_proc, &empty_grouping);
 }
 
-void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc, int8_t &err) {
-    try
-    {
-        err = 0;
-        std::string empty_grouping;
-        qp.add_rangeprocessor(&range_proc, &empty_grouping);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc) {
+    std::string empty_grouping;
+    qp.add_rangeprocessor(&range_proc, &empty_grouping);
 }
 
-void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err)
+void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix)
 {
-    try
-    {
-        err = 0;
-        std::string empty_grouping;
-        qp.add_boolean_prefix(std::string(field), std::string(prefix), &empty_grouping);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+    std::string empty_grouping;
+    qp.add_boolean_prefix(std::string(field), std::string(prefix), &empty_grouping);
 }
 
-std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flags, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Query>(qp.parse_query(std::string(data), flags));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flags) {
+    return std::make_unique<Xapian::Query>(qp.parse_query(std::string(data), flags));
 }
 
-std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Query>(qp.parse_query(std::string(query), flags, std::string(prefix)));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix) {
+    return std::make_unique<Xapian::Query>(qp.parse_query(std::string(query), flags, std::string(prefix)));
 }
 
 ////////

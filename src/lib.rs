@@ -496,16 +496,16 @@ pub(crate) mod ffi {
         pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool, err: &mut i8);
         pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8);
 
-        pub(crate) fn new_query_parser(err: &mut i8) -> UniquePtr<QueryParser>;
-        pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32, err: &mut i8);
-        pub(crate) fn set_stemmer_to_qp(qp: Pin<&mut QueryParser>, stem: Pin<&mut Stem>, err: &mut i8);
-        pub(crate) fn set_database(qp: Pin<&mut QueryParser>, add_db: Pin<&mut Database>, err: &mut i8);
-        pub(crate) fn add_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str, err: &mut i8);
-        pub(crate) fn add_boolean_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str, err: &mut i8);
-        pub(crate) fn add_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut RangeProcessor>, err: &mut i8);
-        pub(crate) fn add_number_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut NumberRangeProcessor>, err: &mut i8);
-        pub(crate) fn parse_query(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32, err: &mut i8) -> UniquePtr<Query>;
-        pub(crate) fn parse_query_with_prefix(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32, prefix: &str, err: &mut i8) -> UniquePtr<Query>;
+        pub(crate) fn new_query_parser() -> Result<UniquePtr<QueryParser>>;
+        pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32)-> Result<()>;
+        pub(crate) fn set_stemmer_to_qp(qp: Pin<&mut QueryParser>, stem: Pin<&mut Stem>)-> Result<()>;
+        pub(crate) fn set_database(qp: Pin<&mut QueryParser>, add_db: Pin<&mut Database>)-> Result<()>;
+        pub(crate) fn add_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str)-> Result<()>;
+        pub(crate) fn add_boolean_prefix(qp: Pin<&mut QueryParser>, field: &str, prefix: &str)-> Result<()>;
+        pub(crate) fn add_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut RangeProcessor>)-> Result<()>;
+        pub(crate) fn add_number_rangeprocessor(qp: Pin<&mut QueryParser>, range_proc: Pin<&mut NumberRangeProcessor>)-> Result<()>;
+        pub(crate) fn parse_query(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32) -> Result<UniquePtr<Query>>;
+        pub(crate) fn parse_query_with_prefix(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32, prefix: &str) -> Result<UniquePtr<Query>>;
 
         // pub(crate) fn new_query(err: &mut i8) -> UniquePtr<Query>;
         pub(crate) fn new_query_range(op: i32, slot: u32, begin: f64, end: f64, err: &mut i8) -> UniquePtr<Query>;
@@ -660,132 +660,58 @@ pub struct QueryParser {
     pub cxxp: UniquePtr<ffi::QueryParser>,
 }
 
-#[allow(unused_unsafe)]
 impl QueryParser {
-    pub fn new() -> Result<Self, XError> {
+    pub fn new() -> Result<Self, cxx::Exception> {
         unsafe {
-            let mut err = 0;
-            let obj = ffi::new_query_parser(&mut err);
-
-            if err == 0 {
-                Ok(Self { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
+            Ok(Self { cxxp: ffi::new_query_parser()?})
         }
     }
 
-    pub fn set_max_wildcard_expansion(&mut self, limit: i32) -> Result<(), XError> {
+    pub fn set_max_wildcard_expansion(&mut self, limit: i32) -> Result<(), cxx::Exception> {
         unsafe {
-            let mut err = 0;
-            ffi::set_max_wildcard_expansion(self.cxxp.pin_mut(), limit, &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
+            ffi::set_max_wildcard_expansion(self.cxxp.pin_mut(), limit)?;
+            Ok(())
         }
     }
 
-    pub fn set_stemmer(&mut self, mut stem: Stem) -> Result<(), XError> {
-        unsafe {
-            let mut err = 0;
-            ffi::set_stemmer_to_qp(self.cxxp.pin_mut(), stem.cxxp.pin_mut(), &mut err);
-            if err < 0 {
-                return Err(XError::Xapian(err));
-            }
-        }
+    pub fn set_stemmer(&mut self, mut stem: Stem) -> Result<(), cxx::Exception> {
+        ffi::set_stemmer_to_qp(self.cxxp.pin_mut(), stem.cxxp.pin_mut())?;
         Ok(())
     }
 
-    pub fn set_database(&mut self, database: &mut Database) -> Result<(), XError> {
-        unsafe {
-            let mut err = 0;
-            ffi::set_database(self.cxxp.pin_mut(), database.cxxp.pin_mut(), &mut err);
+    pub fn set_database(&mut self, database: &mut Database) -> Result<(), cxx::Exception> {
+        ffi::set_database(self.cxxp.pin_mut(), database.cxxp.pin_mut())?;
+        Ok(())
+    }
 
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
+    pub fn add_prefix(&mut self, field: &str, prefix: &str) -> Result<(), cxx::Exception> {
+        ffi::add_prefix(self.cxxp.pin_mut(), field, prefix)?;
+        Ok(())
+    }
+
+    pub fn add_boolean_prefix(&mut self, field: &str, prefix: &str) -> Result<(), cxx::Exception> {
+        ffi::add_boolean_prefix(self.cxxp.pin_mut(), field, prefix)?;
+        Ok(())
+    }
+
+    pub fn add_rangeprocessor(&mut self, range_proc: &mut RangeProcessor) -> Result<(), cxx::Exception> {
+        ffi::add_rangeprocessor(self.cxxp.pin_mut(), range_proc.cxxp.pin_mut())?;
+        Ok(())
+    }
+
+    pub fn add_number_rangeprocessor(&mut self, range_proc: &mut NumberRangeProcessor) -> Result<(), cxx::Exception> {
+        ffi::add_number_rangeprocessor(self.cxxp.pin_mut(), range_proc.cxxp.pin_mut())?;
+        Ok(())
+    }
+
+    pub fn parse_query(&mut self, query: &str, flags: i32) -> Result<Query, cxx::Exception> {
+        unsafe {
+            Ok(Query { cxxp: ffi::parse_query(self.cxxp.pin_mut(), query, flags)?})
         }
     }
 
-    pub fn add_prefix(&mut self, field: &str, prefix: &str) -> Result<(), XError> {
-        unsafe {
-            let mut err = 0;
-            ffi::add_prefix(self.cxxp.pin_mut(), field, prefix, &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
-    }
-
-    pub fn add_boolean_prefix(&mut self, field: &str, prefix: &str) -> Result<(), XError> {
-        unsafe {
-            let mut err = 0;
-            ffi::add_boolean_prefix(self.cxxp.pin_mut(), field, prefix, &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
-    }
-
-    pub fn add_rangeprocessor(&mut self, range_proc: &mut RangeProcessor) -> Result<(), XError> {
-        unsafe {
-            let mut err = 0;
-            ffi::add_rangeprocessor(self.cxxp.pin_mut(), range_proc.cxxp.pin_mut(), &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
-    }
-
-    pub fn add_number_rangeprocessor(&mut self, range_proc: &mut NumberRangeProcessor) -> Result<(), XError> {
-        unsafe {
-            let mut err = 0;
-            ffi::add_number_rangeprocessor(self.cxxp.pin_mut(), range_proc.cxxp.pin_mut(), &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
-    }
-
-    pub fn parse_query(&mut self, query: &str, flags: i32) -> Result<Query, XError> {
-        unsafe {
-            let mut err = 0;
-            let obj = ffi::parse_query(self.cxxp.pin_mut(), query, flags, &mut err);
-            if err == 0 {
-                Ok(Query { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
-    }
-
-    pub fn parse_query_with_prefix(&mut self, query: &str, flags: i32, prefix: &str) -> Result<Query, XError> {
-        unsafe {
-            let mut err = 0;
-            let obj = ffi::parse_query_with_prefix(self.cxxp.pin_mut(), query, flags, prefix, &mut err);
-            if err == 0 {
-                Ok(Query { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn parse_query_with_prefix(&mut self, query: &str, flags: i32, prefix: &str) -> Result<Query, cxx::Exception> {
+        Ok(Query { cxxp: ffi::parse_query_with_prefix(self.cxxp.pin_mut(), query, flags, prefix)? })
     }
 }
 

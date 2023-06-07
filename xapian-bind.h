@@ -69,16 +69,16 @@ void add_boolean_term(Document &doc, rust::Str data);
 const std::string &get_doc_data (Document &doc);
 
 //
-std::unique_ptr<QueryParser> new_query_parser(int8_t &err);
-void set_max_wildcard_expansion(QueryParser &qp, int32_t limit, int8_t &err);
-void set_stemmer_to_qp(QueryParser &qp, Stem &stem, int8_t &err);
-void set_database(QueryParser &qp, Database &db, int8_t &err);
-void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
-void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix, int8_t &err);
-void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc, int8_t &err);
-void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc, int8_t &err);
-std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flags, int8_t &err);
-std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix, int8_t &err);
+std::unique_ptr<QueryParser> new_query_parser();
+void set_max_wildcard_expansion(QueryParser &qp, int32_t limit);
+void set_stemmer_to_qp(QueryParser &qp, Stem &stem);
+void set_database(QueryParser &qp, Database &db);
+void add_prefix(QueryParser &qp, rust::Str field, rust::Str prefix);
+void add_boolean_prefix(QueryParser &qp, rust::Str field, rust::Str prefix);
+void add_rangeprocessor(QueryParser &qp, RangeProcessor &range_proc);
+void add_number_rangeprocessor(QueryParser &qp, NumberRangeProcessor &range_proc);
+std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flags);
+std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix);
 
 //
 std::unique_ptr<Query> new_query(int8_t &err);
