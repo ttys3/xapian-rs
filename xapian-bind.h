@@ -81,11 +81,11 @@ std::unique_ptr<Query> parse_query(QueryParser &qp, rust::Str data, int32_t flag
 std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query, int32_t flags, rust::Str prefix);
 
 //
-std::unique_ptr<Query> new_query(int8_t &err);
-std::unique_ptr<Query> new_query_range(int32_t op, valueno slot, double begin, double end, int8_t &err);
-std::unique_ptr<Query> new_query_double_with_prefix(rust::Str prefix, double _d, int8_t &err);
-std::unique_ptr<Query> add_right_query(Query &this_q, int32_t _op, Query &q, int8_t &err);
-bool query_is_empty (Query &q, int8_t &err);
+std::unique_ptr<Query> new_query();
+std::unique_ptr<Query> new_query_range(int32_t op, valueno slot, double begin, double end);
+std::unique_ptr<Query> new_query_double_with_prefix(rust::Str prefix, double _d);
+std::unique_ptr<Query> add_right_query(Query &this_q, int32_t _op, Query &q);
+bool query_is_empty (Query &q);
 const std::string &get_description (Query &q);
 
 //

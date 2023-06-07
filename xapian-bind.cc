@@ -312,77 +312,30 @@ std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query,
 ////////
 
 std::unique_ptr<Query> new_query(int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Query>();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Xapian::Query>();
 }
 
-std::unique_ptr<Query> new_query_range(int32_t _op, valueno slot, double _begin, double _end, int8_t &err) {
-    try
-    {
-        err = 0;
+std::unique_ptr<Query> new_query_range(int32_t _op, valueno slot, double _begin, double _end) {
+    std::string s_begin = Xapian::sortable_serialise(_begin);
+    std::string s_end = Xapian::sortable_serialise(_end);
+    Xapian::Query _query ((Xapian::Query::op)_op, slot, s_begin, s_end);
 
-        std::string s_begin = Xapian::sortable_serialise(_begin);
-        std::string s_end = Xapian::sortable_serialise(_end);
-        Xapian::Query _query ((Xapian::Query::op)_op, slot, s_begin, s_end);
-
-        return std::make_unique<Xapian::Query>(_query);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    return std::make_unique<Xapian::Query>(_query);
 }
 
-std::unique_ptr<Query> add_right_query(Query &this_q, int32_t _op, Query &q, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Query>((Xapian::Query::op)_op, this_q, q);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<Query> add_right_query(Query &this_q, int32_t _op, Query &q) {
+    return std::make_unique<Xapian::Query>((Xapian::Query::op)_op, this_q, q);
 }
 
-std::unique_ptr<Query> new_query_double_with_prefix(rust::Str prefix, double _d, int8_t &err) {
-    try
-    {
-        err = 0;
+std::unique_ptr<Query> new_query_double_with_prefix(rust::Str prefix, double _d) {
+    std::string s = std::string(prefix) + Xapian::sortable_serialise(_d);
 
-        std::string s = std::string(prefix) + Xapian::sortable_serialise(_d);
-
-        Xapian::Query _query (s);
-        return std::make_unique<Xapian::Query>(_query);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    Xapian::Query _query (s);
+    return std::make_unique<Xapian::Query>(_query);
 }
 
-bool query_is_empty (Query &q, int8_t &err) {
-    try
-    {
-        err = 0;
-        return q.empty();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return true;
-    }
+bool query_is_empty (Query &q) {
+    return q.empty();
 }
 
 std::string g_str_1;

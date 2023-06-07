@@ -507,11 +507,11 @@ pub(crate) mod ffi {
         pub(crate) fn parse_query(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32) -> Result<UniquePtr<Query>>;
         pub(crate) fn parse_query_with_prefix(qp: Pin<&mut QueryParser>, query_string: &str, flags: i32, prefix: &str) -> Result<UniquePtr<Query>>;
 
-        // pub(crate) fn new_query(err: &mut i8) -> UniquePtr<Query>;
-        pub(crate) fn new_query_range(op: i32, slot: u32, begin: f64, end: f64, err: &mut i8) -> UniquePtr<Query>;
-        pub(crate) fn add_right_query(this_q: Pin<&mut Query>, op: i32, q: Pin<&mut Query>, err: &mut i8) -> UniquePtr<Query>;
-        pub(crate) fn new_query_double_with_prefix(prefix: &str, d: f64, err: &mut i8) -> UniquePtr<Query>;
-        pub(crate) fn query_is_empty(this_q: Pin<&mut Query>, err: &mut i8) -> bool;
+        pub(crate) fn new_query() -> Result<UniquePtr<Query>>;
+        pub(crate) fn new_query_range(op: i32, slot: u32, begin: f64, end: f64) -> Result<UniquePtr<Query>>;
+        pub(crate) fn add_right_query(this_q: Pin<&mut Query>, op: i32, q: Pin<&mut Query>) ->Result<UniquePtr<Query>>;
+        pub(crate) fn new_query_double_with_prefix(prefix: &str, d: f64) -> Result<UniquePtr<Query>>;
+        pub(crate) fn query_is_empty(this_q: Pin<&mut Query>) -> bool;
         pub(crate) fn get_description(this_q: Pin<&mut Query>) -> &CxxString;
 
         pub(crate) fn new_multi_value_key_maker(err: &mut i8) -> UniquePtr<MultiValueKeyMaker>;
@@ -573,50 +573,20 @@ pub struct Query {
 }
 
 impl Query {
-    pub fn new() -> Result<Self, XError> {
-        Ok(Self { cxxp: UniquePtr::null() })
+    pub fn new() -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_query()? })
     }
 
-    pub fn new_range(op: XapianOp, slot: u32, begin: f64, end: f64) -> Result<Self, XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            let obj = ffi::new_query_range(op as i32, slot, begin, end, &mut err);
-
-            if err == 0 {
-                Ok(Self { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn new_range(op: XapianOp, slot: u32, begin: f64, end: f64) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_query_range(op as i32, slot, begin, end)? })
     }
 
-    pub fn add_right(&mut self, op: XapianOp, q: &mut Query) -> Result<Self, XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            let obj = ffi::add_right_query(self.cxxp.pin_mut(), op as i32, q.cxxp.pin_mut(), &mut err);
-
-            if err == 0 {
-                Ok(Self { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn add_right(&mut self, op: XapianOp, q: &mut Query) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::add_right_query(self.cxxp.pin_mut(), op as i32, q.cxxp.pin_mut())? })
     }
 
-    pub fn new_double_with_prefix(prefix: &str, d: f64) -> Result<Self, XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            let obj = ffi::new_query_double_with_prefix(prefix, d, &mut err);
-
-            if err == 0 {
-                Ok(Self { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn new_double_with_prefix(prefix: &str, d: f64) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_query_double_with_prefix(prefix, d)? })
     }
 
     pub fn is_empty(&mut self) -> bool {
@@ -628,7 +598,7 @@ impl Query {
             #[allow(unused_unsafe)]
             unsafe {
                 let mut err = 0;
-                let res = ffi::query_is_empty(self.cxxp.pin_mut(), &mut err);
+                let res = ffi::query_is_empty(self.cxxp.pin_mut());
                 if err == 0 {
                     return res;
                 } else {
@@ -726,7 +696,7 @@ impl MSetIterator {
     //     #[allow(unused_unsafe)]
     //     unsafe {
     //         let mut err = 0;
-    //         let res = ffi::mset_size(self.mset.cxxp.pin_mut(), &mut err) > self.index;
+    //         let res = ffi::mset_size(self.mset.cxxp.pin_mut()) > self.index;
     //
     //         if err == 0 {
     //             Ok(res)
@@ -740,7 +710,7 @@ impl MSetIterator {
     //     #[allow(unused_unsafe)]
     //     unsafe {
     //         let mut err = 0;
-    //         if ffi::mset_size(self.mset.cxxp.pin_mut(), &mut err) > self.index {
+    //         if ffi::mset_size(self.mset.cxxp.pin_mut()) > self.index {
     //             self.index += 1;
     //         }
     //
