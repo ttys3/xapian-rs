@@ -112,14 +112,7 @@ std::unique_ptr<WritableDatabase> new_writable_database_with_path(rust::Str path
 
 void commit(WritableDatabase &db)
 {
-    try
-    {
-        db.commit();
-    }
-    catch (Error ex)
-    {
-        throw ex;
-    }
+    db.commit();
 }
 
 void close(WritableDatabase &db)
@@ -311,7 +304,7 @@ std::unique_ptr<Query> parse_query_with_prefix(QueryParser &qp, rust::Str query,
 
 ////////
 
-std::unique_ptr<Query> new_query(int8_t &err) {
+std::unique_ptr<Query> new_query() {
     return std::make_unique<Xapian::Query>();
 }
 
@@ -355,351 +348,146 @@ const std::string &get_description (Query &q) {
 
 ////
 
-std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::MSet>(en.get_mset(from, size));
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size) {
+    return std::make_unique<Xapian::MSet>(en.get_mset(from, size));
 }
 
-void set_query(Enquire &en, Query &query, int8_t &err) {
-    try
-    {
-        err = 0;
-        en.set_query(query);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void set_query(Enquire &en, Query &query) {
+    en.set_query(query);
 }
 
-void set_sort_by_key(Enquire &en, MultiValueKeyMaker &sorter, bool reverse, int8_t &err) {
-    try
-    {
-        err = 0;
-        en.set_sort_by_key(&sorter, reverse);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void set_sort_by_key(Enquire &en, MultiValueKeyMaker &sorter, bool reverse) {
+    en.set_sort_by_key(&sorter, reverse);
 }
 
-void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms, int8_t &err) {
-    try
-    {
-        err = 0;
-        en.add_matchspy(&vcms);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms) {
+    en.add_matchspy(&vcms);
 }
 
 /////
 
-int get_matches_estimated (MSet &set, int8_t &err) {
-    try
-    {
-        err = 0;
-        return set.get_matches_estimated();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return -1;
-    }
+int get_matches_estimated (MSet &set) {
+    return set.get_matches_estimated();
 }
 
-int mset_size (MSet &set, int8_t &err) {
-    try
-    {
-        err = 0;
-        return set.size();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return -1;
-    }
+int mset_size (MSet &set) {
+    return set.size();
 }
 
-std::unique_ptr<MSetIterator> mset_begin (MSet &set, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::MSetIterator>(set.begin());
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<MSetIterator> mset_begin (MSet &set) {
+    return std::make_unique<Xapian::MSetIterator>(set.begin());
 }
 
-std::unique_ptr<MSetIterator> mset_end (MSet &set, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::MSetIterator>(set.end());
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<MSetIterator> mset_end (MSet &set) {
+    return std::make_unique<Xapian::MSetIterator>(set.end());
 }
 
-std::unique_ptr<MSetIterator> mset_back (MSet &set, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::MSetIterator>(set.back());
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<MSetIterator> mset_back (MSet &set) {
+    return std::make_unique<Xapian::MSetIterator>(set.back());
 }
 
 std::string g_str_snippet;
-const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit,int8_t &err) {
+const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit) {
     try
     {
-        err = 0;
         g_str_snippet = set.snippet(std::string(text), length, stem, flags, std::string(hi_start), std::string(hi_end), std::string(omit));
         return g_str_snippet;
     }
     catch (Error ex)
     {
-        err = get_err_code(ex.get_type());
         return NULL;
     }
 }
 
-std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::Document>(iter.get_document());
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter) {
+    return std::make_unique<Xapian::Document>(iter.get_document());
 }
 
-bool mset_iterator_eq(MSetIterator &iter, MSetIterator &other, int8_t &err) {
-    try
-    {
-        err = 0;
-        return iter == other;
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return false;
-    }
+bool mset_iterator_eq(MSetIterator &iter, MSetIterator &other) {
+    return iter == other;
 }
 
-void mset_iterator_next (MSetIterator &iter, int8_t &err) {
-    try
-    {
-        err = 0;
-        iter++;
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void mset_iterator_next (MSetIterator &iter) {
+    iter++;
 }
 
 /////
 
-std::unique_ptr<MultiValueKeyMaker> new_multi_value_key_maker (int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::MultiValueKeyMaker>();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<MultiValueKeyMaker> new_multi_value_key_maker () {
+    return std::make_unique<Xapian::MultiValueKeyMaker>();
 }
 
-void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot, bool asc_desc, int8_t &err) {
-    try
-    {
-        err = 0;
-        this_m.add_value(slot, asc_desc);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot, bool asc_desc) {
+    this_m.add_value(slot, asc_desc);
 }
 
 /////
 
-std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::ValueCountMatchSpy>(slot);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot) {
+    return std::make_unique<Xapian::ValueCountMatchSpy>(slot);
 }
 
 /////
 
-std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags, int8_t &err) {
-    try
-    {
-        err = 0;
-        // https://xapian.org/docs/sourcedoc/html/classXapian_1_1RangeProcessor.html#aca78f2633f761f70a2e94e62e741f0ba
-        //        Xapian::RangeProcessor::RangeProcessor (	Xapian::valueno 	slot_,const std::string & 	str_ = std::string(),unsigned 	flags_ = 0 )
-        //        slot_	Which value slot to generate ranges over.
-        //                str_	A string to look for to recognise values as belonging to this range (as a prefix by default, or as a suffix if flags Xapian::RP_SUFFIX is specified).
-        //        flags_	Zero or more of the following flags, combined with bitwise-or (| in C++):
-        //        Xapian::RP_SUFFIX - require str_ as a suffix instead of a prefix.
-        //        Xapian::RP_REPEATED - optionally allow str_ on both ends of the range - e.g. $1..$10 or 5m..50m.
-        //                By default a prefix is only checked for on the start (e.g. date:1/1/1980..31/12/1989), and a suffix only on the end (e.g. 2..12kg).
+std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags) {
+    // https://xapian.org/docs/sourcedoc/html/classXapian_1_1RangeProcessor.html#aca78f2633f761f70a2e94e62e741f0ba
+    //        Xapian::RangeProcessor::RangeProcessor (	Xapian::valueno 	slot_,const std::string & 	str_ = std::string(),unsigned 	flags_ = 0 )
+    //        slot_	Which value slot to generate ranges over.
+    //                str_	A string to look for to recognise values as belonging to this range (as a prefix by default, or as a suffix if flags Xapian::RP_SUFFIX is specified).
+    //        flags_	Zero or more of the following flags, combined with bitwise-or (| in C++):
+    //        Xapian::RP_SUFFIX - require str_ as a suffix instead of a prefix.
+    //        Xapian::RP_REPEATED - optionally allow str_ on both ends of the range - e.g. $1..$10 or 5m..50m.
+    //                By default a prefix is only checked for on the start (e.g. date:1/1/1980..31/12/1989), and a suffix only on the end (e.g. 2..12kg).
 
-        // enum {
-        //    RP_SUFFIX = 1,
-        //    RP_REPEATED = 2,
-        //    RP_DATE_PREFER_MDY = 4
-        //};
-        // when flags = 0, str as a prefix by default
-        return std::make_unique<Xapian::RangeProcessor>(slot, std::string(str), flags);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+    // enum {
+    //    RP_SUFFIX = 1,
+    //    RP_REPEATED = 2,
+    //    RP_DATE_PREFER_MDY = 4
+    //};
+    // when flags = 0, str as a prefix by default
+    return std::make_unique<Xapian::RangeProcessor>(slot, std::string(str), flags);
 }
 
 /////
 
-std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::NumberRangeProcessor>(slot, std::string(prefix), flags);
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags) {
+    return std::make_unique<Xapian::NumberRangeProcessor>(slot, std::string(prefix), flags);
 }
 
 /////
-int value_count_matchspy_get_total(ValueCountMatchSpy &vcms, int8_t &err) {
-    try
-    {
-        err = 0;
-        return vcms.get_total();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return 0;
-    }
+int value_count_matchspy_get_total(ValueCountMatchSpy &vcms) {
+    return vcms.get_total();
 }
 
-std::unique_ptr<TermIterator> value_count_matchspy_values_begin(ValueCountMatchSpy &vcms, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::TermIterator>(vcms.values_begin());
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<TermIterator> value_count_matchspy_values_begin(ValueCountMatchSpy &vcms) {
+    return std::make_unique<Xapian::TermIterator>(vcms.values_begin());
 }
 
-std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy &vcms, int8_t &err) {
-    try
-    {
-        err = 0;
-        return std::make_unique<Xapian::TermIterator>(vcms.values_end());
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return NULL;
-    }
+std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy &vcms) {
+    return std::make_unique<Xapian::TermIterator>(vcms.values_end());
 }
 
 std::string g_str_termfreq_value;
-const std::string &term_iterator_get_termfreq_value(TermIterator &titer, int8_t &err) {
+const std::string &term_iterator_get_termfreq_value(TermIterator &titer) {
     try
     {
-        err = 0;
         g_str_termfreq_value = *titer;
         return g_str_termfreq_value;
     }
     catch (Error ex)
     {
-        err = get_err_code(ex.get_type());
         return NULL;
     }
 }
 
-int term_iterator_get_termfreq_freq(TermIterator &titer, int8_t &err) {
-    try
-    {
-        err = 0;
-        return titer.get_termfreq();
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return 0;
-    }
+int term_iterator_get_termfreq_freq(TermIterator &titer) {
+    return titer.get_termfreq();
 }
 
-bool term_iterator_eq(TermIterator &titer, TermIterator &other, int8_t &err) {
-    try
-    {
-        err = 0;
-        return titer == other;
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-        return false;
-    }
+bool term_iterator_eq(TermIterator &titer, TermIterator &other) {
+    return titer == other;
 }
 
-void term_iterator_next(TermIterator &titer, int8_t &err) {
-    try
-    {
-        err = 0;
-        ++titer;
-    }
-    catch (Error ex)
-    {
-        err = get_err_code(ex.get_type());
-    }
+void term_iterator_next(TermIterator &titer) {
+    ++titer;
 }

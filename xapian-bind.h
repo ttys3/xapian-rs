@@ -89,39 +89,39 @@ bool query_is_empty (Query &q);
 const std::string &get_description (Query &q);
 
 //
-std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size, int8_t &err);
-void set_query(Enquire &en, Query &query, int8_t &err);
-void set_sort_by_key(Enquire &en, MultiValueKeyMaker & sorter, bool reverse, int8_t &err);
-void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms, int8_t &err);
+std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size);
+void set_query(Enquire &en, Query &query);
+void set_sort_by_key(Enquire &en, MultiValueKeyMaker & sorter, bool reverse);
+void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms);
 //
-int get_matches_estimated (MSet &set, int8_t &err);
-int mset_size (MSet &set, int8_t &err);
-const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit,int8_t &err);
-std::unique_ptr<MSetIterator> mset_begin (MSet &set, int8_t &err);
-std::unique_ptr<MSetIterator> mset_end (MSet &set, int8_t &err);
-std::unique_ptr<MSetIterator> mset_back (MSet &set, int8_t &err);
-
-//
-std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter, int8_t &err);
-bool mset_iterator_eq(MSetIterator &iter, MSetIterator &other, int8_t &err);
-void mset_iterator_next (MSetIterator &iter, int8_t &err);
+int get_matches_estimated (MSet &set);
+int mset_size (MSet &set);
+const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit);
+std::unique_ptr<MSetIterator> mset_begin (MSet &set);
+std::unique_ptr<MSetIterator> mset_end (MSet &set);
+std::unique_ptr<MSetIterator> mset_back (MSet &set);
 
 //
-std::unique_ptr<MultiValueKeyMaker> new_multi_value_key_maker (int8_t &err);
-void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot, bool asc_desc, int8_t &err);
-
-std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot, int8_t &err);
-
-std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags, int8_t &err);
-std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags, int8_t &err);
+std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter);
+bool mset_iterator_eq(MSetIterator &iter, MSetIterator &other);
+void mset_iterator_next (MSetIterator &iter);
 
 //
-std::unique_ptr<TermIterator> value_count_matchspy_values_begin(ValueCountMatchSpy &vcms, int8_t &err);
-std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy &vcms, int8_t &err);
-int value_count_matchspy_get_total(ValueCountMatchSpy &vcms, int8_t &err);
+std::unique_ptr<MultiValueKeyMaker> new_multi_value_key_maker ();
+void add_value_to_multi_value_key_maker(MultiValueKeyMaker &this_m, valueno slot, bool asc_desc);
+
+std::unique_ptr<ValueCountMatchSpy> new_value_count_match_spy (valueno slot);
+
+std::unique_ptr<RangeProcessor> new_range_processor (valueno slot, rust::Str str, int32_t flags);
+std::unique_ptr<NumberRangeProcessor> new_number_range_processor (valueno slot, rust::Str prefix, int32_t flags);
 
 //
-const std::string &term_iterator_get_termfreq_value(TermIterator &titer, int8_t &err);
-int term_iterator_get_termfreq_freq(TermIterator &titer, int8_t &err);
-bool term_iterator_eq(TermIterator &titer, TermIterator &other, int8_t &err);
-void term_iterator_next(TermIterator &titer, int8_t &err);
+std::unique_ptr<TermIterator> value_count_matchspy_values_begin(ValueCountMatchSpy &vcms);
+std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy &vcms);
+int value_count_matchspy_get_total(ValueCountMatchSpy &vcms);
+
+//
+const std::string &term_iterator_get_termfreq_value(TermIterator &titer);
+int term_iterator_get_termfreq_freq(TermIterator &titer);
+bool term_iterator_eq(TermIterator &titer, TermIterator &other);
+void term_iterator_next(TermIterator &titer);

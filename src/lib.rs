@@ -410,6 +410,7 @@ pub enum SnippetFlags {
 
 #[cxx::bridge]
 pub(crate) mod ffi {
+
     #[namespace = "Xapian"]
     extern "C++" {
         pub(crate) type Database;
@@ -469,8 +470,8 @@ pub(crate) mod ffi {
         pub(crate) fn get_doc_data(doc: Pin<&mut Document>) -> Result<&CxxString>;
         pub(crate) fn add_boolean_term(doc: Pin<&mut Document>, data: &str)-> Result<()>;
 
-        pub(crate) fn get_matches_estimated(set: Pin<&mut MSet>, err: &mut i8) -> i32;
-        pub(crate) fn mset_size(set: Pin<&mut MSet>, err: &mut i8) -> i32;
+        pub(crate) fn get_matches_estimated(set: Pin<&mut MSet>) -> Result<i32>;
+        pub(crate) fn mset_size(set: Pin<&mut MSet>) -> Result<i32>;
         pub(crate) fn mset_snippet<'a>(
             set: Pin<&'a mut MSet>,
             text: &'a str,
@@ -480,21 +481,20 @@ pub(crate) mod ffi {
             hi_start: &'a str,
             hi_end: &'a str,
             omit: &'a str,
-            err: &'a mut i8,
         ) -> &'a CxxString;
-        pub(crate) fn mset_iterator_get_document(iter: Pin<&mut MSetIterator>, err: &mut i8) -> UniquePtr<Document>;
-        pub(crate) fn mset_iterator_eq(iter: Pin<&mut MSetIterator>, other: Pin<&mut MSetIterator>, err: &mut i8) -> bool;
-        pub(crate) fn mset_iterator_next(iter: Pin<&mut MSetIterator>, err: &mut i8);
+        pub(crate) fn mset_iterator_get_document(iter: Pin<&mut MSetIterator>) -> Result<UniquePtr<Document>>;
+        pub(crate) fn mset_iterator_eq(iter: Pin<&mut MSetIterator>, other: Pin<&mut MSetIterator>) -> Result<bool>;
+        pub(crate) fn mset_iterator_next(iter: Pin<&mut MSetIterator>) -> Result<()>;
 
-        pub(crate) fn mset_begin(set: Pin<&mut MSet>, err: &mut i8) -> UniquePtr<MSetIterator>;
-        pub(crate) fn mset_end(set: Pin<&mut MSet>, err: &mut i8) -> UniquePtr<MSetIterator>;
-        pub(crate) fn mset_back(set: Pin<&mut MSet>, err: &mut i8) -> UniquePtr<MSetIterator>;
-        // pub(crate) fn get_doc_by_index(set: Pin<&mut MSet>, index: i32, err: &mut i8) -> UniquePtr<Document>;
+        pub(crate) fn mset_begin(set: Pin<&mut MSet>) -> Result<UniquePtr<MSetIterator>>;
+        pub(crate) fn mset_end(set: Pin<&mut MSet>) -> Result<UniquePtr<MSetIterator>>;
+        pub(crate) fn mset_back(set: Pin<&mut MSet>) -> Result<UniquePtr<MSetIterator>>;
+        // pub(crate) fn get_doc_by_index(set: Pin<&mut MSet>, index: i32) -> Result<UniquePtr<Document>>;
 
-        pub(crate) fn get_mset(en: Pin<&mut Enquire>, from: i32, size: i32, err: &mut i8) -> UniquePtr<MSet>;
-        pub(crate) fn set_query(en: Pin<&mut Enquire>, query: Pin<&mut Query>, err: &mut i8);
-        pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool, err: &mut i8);
-        pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8);
+        pub(crate) fn get_mset(en: Pin<&mut Enquire>, from: i32, size: i32) -> Result<UniquePtr<MSet>>;
+        pub(crate) fn set_query(en: Pin<&mut Enquire>, query: Pin<&mut Query>)-> Result<()>;
+        pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool)-> Result<()>;
+        pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>)->Result<()>;
 
         pub(crate) fn new_query_parser() -> Result<UniquePtr<QueryParser>>;
         pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32)-> Result<()>;
@@ -514,21 +514,21 @@ pub(crate) mod ffi {
         pub(crate) fn query_is_empty(this_q: Pin<&mut Query>) -> bool;
         pub(crate) fn get_description(this_q: Pin<&mut Query>) -> &CxxString;
 
-        pub(crate) fn new_multi_value_key_maker(err: &mut i8) -> UniquePtr<MultiValueKeyMaker>;
-        pub(crate) fn add_value_to_multi_value_key_maker(this_m: Pin<&mut MultiValueKeyMaker>, slot: u32, asc_desc: bool, err: &mut i8);
+        pub(crate) fn new_multi_value_key_maker() -> Result<UniquePtr<MultiValueKeyMaker>>;
+        pub(crate) fn add_value_to_multi_value_key_maker(this_m: Pin<&mut MultiValueKeyMaker>, slot: u32, asc_desc: bool)->Result<()>;
 
-        pub(crate) fn new_value_count_match_spy(slot: u32, err: &mut i8) -> UniquePtr<ValueCountMatchSpy>;
-        pub(crate) fn new_range_processor(slot: u32, prefix: &str, flags: i32, err: &mut i8) -> UniquePtr<RangeProcessor>;
-        pub(crate) fn new_number_range_processor(slot: u32, prefix: &str, flags: i32, err: &mut i8) -> UniquePtr<NumberRangeProcessor>;
+        pub(crate) fn new_value_count_match_spy(slot: u32) -> Result<UniquePtr<ValueCountMatchSpy>>;
+        pub(crate) fn new_range_processor(slot: u32, prefix: &str, flags: i32) -> Result<UniquePtr<RangeProcessor>>;
+        pub(crate) fn new_number_range_processor(slot: u32, prefix: &str, flags: i32) -> Result<UniquePtr<NumberRangeProcessor>>;
 
-        pub(crate) fn value_count_matchspy_values_begin(vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8) -> UniquePtr<TermIterator>;
-        pub(crate) fn value_count_matchspy_values_end(vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8) -> UniquePtr<TermIterator>;
-        pub(crate) fn value_count_matchspy_get_total(vcms: Pin<&mut ValueCountMatchSpy>, err: &mut i8) -> i32;
+        pub(crate) fn value_count_matchspy_values_begin(vcms: Pin<&mut ValueCountMatchSpy>) -> Result<UniquePtr<TermIterator>>;
+        pub(crate) fn value_count_matchspy_values_end(vcms: Pin<&mut ValueCountMatchSpy>) -> Result<UniquePtr<TermIterator>>;
+        pub(crate) fn value_count_matchspy_get_total(vcms: Pin<&mut ValueCountMatchSpy>) -> i32;
 
-        pub(crate) fn term_iterator_get_termfreq_value<'a>(titer: Pin<&'a mut TermIterator>, err: &'a mut i8) -> &'a CxxString;
-        pub(crate) fn term_iterator_get_termfreq_freq(titer: Pin<&mut TermIterator>, err: &mut i8) -> i32;
-        pub(crate) fn term_iterator_eq(titer: Pin<&mut TermIterator>, other: Pin<&mut TermIterator>, err: &mut i8) -> bool;
-        pub(crate) fn term_iterator_next(titer: Pin<&mut TermIterator>, err: &mut i8);
+        pub(crate) fn term_iterator_get_termfreq_value<'a>(titer: Pin<&'a mut TermIterator>) -> &'a CxxString;
+        pub(crate) fn term_iterator_get_termfreq_freq(titer: Pin<&mut TermIterator>) -> i32;
+        pub(crate) fn term_iterator_eq(titer: Pin<&mut TermIterator>, other: Pin<&mut TermIterator>) -> bool;
+        pub(crate) fn term_iterator_next(titer: Pin<&mut TermIterator>);
     }
 }
 
@@ -539,32 +539,13 @@ pub struct MultiValueKeyMaker {
 }
 
 impl MultiValueKeyMaker {
-    pub fn new() -> Result<Self, XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            let obj = ffi::new_multi_value_key_maker(&mut err);
-
-            if err == 0 {
-                Ok(Self { cxxp: obj })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn new() -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_multi_value_key_maker()? })
     }
 
-    pub fn add_value(&mut self, slot: u32, asc_desc: bool) -> Result<(), XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            ffi::add_value_to_multi_value_key_maker(self.cxxp.pin_mut(), slot, asc_desc, &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn add_value(&mut self, slot: u32, asc_desc: bool) -> Result<(), cxx::Exception> {
+        ffi::add_value_to_multi_value_key_maker(self.cxxp.pin_mut(), slot, asc_desc)?;
+        Ok(())
     }
 }
 
@@ -692,7 +673,7 @@ pub struct MSetIterator {
 }
 
 impl MSetIterator {
-    // pub fn is_next(&mut self) -> Result<bool, XError> {
+    // pub fn is_next(&mut self) -> Result<bool, cxx::Exception> {
     //     #[allow(unused_unsafe)]
     //     unsafe {
     //         let mut err = 0;
@@ -706,7 +687,7 @@ impl MSetIterator {
     //     }
     // }
 
-    // pub fn next(&mut self) -> Result<(), XError> {
+    // pub fn next(&mut self) -> Result<(), cxx::Exception> {
     //     #[allow(unused_unsafe)]
     //     unsafe {
     //         let mut err = 0;
@@ -722,47 +703,18 @@ impl MSetIterator {
     //     }
     // }
 
-    pub fn get_document(&mut self) -> Result<Document, XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            let doc = ffi::mset_iterator_get_document(self.cxxp.pin_mut(), &mut err);
-
-            if err == 0 {
-                Ok(Document { cxxp: doc })
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn get_document(&mut self) -> Result<Document, cxx::Exception> {
+        Ok(Document { cxxp: ffi::mset_iterator_get_document(self.cxxp.pin_mut())? })
     }
 
-    pub fn eq(&mut self, other: &mut MSetIterator) -> Result<bool, XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
-            let res = ffi::mset_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut(), &mut err);
-
-            if err == 0 {
-                Ok(res)
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+    pub fn eq(&mut self, other: &mut MSetIterator) -> Result<bool, cxx::Exception> {
+       Ok(ffi::mset_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut())?)
     }
 
-    pub fn next(&mut self) -> Result<(), XError> {
-        #[allow(unused_unsafe)]
-        unsafe {
-            let mut err = 0;
+    pub fn next(&mut self) -> Result<(), cxx::Exception> {
+        ffi::mset_iterator_next(self.cxxp.pin_mut())?;
 
-            ffi::mset_iterator_next(self.cxxp.pin_mut(), &mut err);
-
-            if err == 0 {
-                Ok(())
-            } else {
-                Err(XError::Xapian(err))
-            }
-        }
+        Ok(())
     }
 }
 
@@ -780,76 +732,30 @@ impl MSet {
     // }
 
     // https://xapian.org/docs/sourcedoc/html/classXapian_1_1MSet.html#ad00d5e7f564fe0e5031cb5f89b829ffe
-    pub fn begin(&mut self) -> Result<MSetIterator, XError> {
-        let mut err = 0;
-        let obj = ffi::mset_begin(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(MSetIterator { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn begin(&mut self) -> Result<MSetIterator, cxx::Exception> {
+        Ok(MSetIterator { cxxp: ffi::mset_begin(self.cxxp.pin_mut())? })
     }
 
-    pub fn end(&mut self) -> Result<MSetIterator, XError> {
-        let mut err = 0;
-        let obj = ffi::mset_end(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(MSetIterator {
-                // mset: self,
-                // index: 0,
-                cxxp: obj,
-            })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn end(&mut self) -> Result<MSetIterator, cxx::Exception> {
+        Ok(MSetIterator { cxxp: ffi::mset_end(self.cxxp.pin_mut())?,
+        })
     }
 
-    pub fn back(&mut self) -> Result<MSetIterator, XError> {
-        let mut err = 0;
-        let obj = ffi::mset_back(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(MSetIterator {
-                // mset: self,
-                // index: 0,
-                cxxp: obj,
-            })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn back(&mut self) -> Result<MSetIterator, cxx::Exception> {
+        Ok(MSetIterator { cxxp: ffi::mset_back(self.cxxp.pin_mut())?,
+        })
     }
 
-    pub fn get_matches_estimated(&mut self) -> Result<i32, XError> {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
-        let res = ffi::get_matches_estimated(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(res)
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn get_matches_estimated(&mut self) -> Result<i32, cxx::Exception> {
+        Ok(ffi::get_matches_estimated(self.cxxp.pin_mut())?)
     }
 
-    pub fn size(&mut self) -> Result<i32, XError> {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
-        let res = ffi::mset_size(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(res)
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn size(&mut self) -> Result<i32, cxx::Exception> {
+        Ok(ffi::mset_size(self.cxxp.pin_mut())?)
     }
 
     pub fn snippet(&mut self, text: &str, length: i32, stem: &mut Stem, flags: i32, hi_start: &str, hi_end: &str, omit: &str) -> String {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
-        let res = ffi::mset_snippet(self.cxxp.pin_mut(), text, length, stem.cxxp.pin_mut(), flags, hi_start, hi_end, omit, &mut err);
-
+        let res = ffi::mset_snippet(self.cxxp.pin_mut(), text, length, stem.cxxp.pin_mut(), flags, hi_start, hi_end, omit);
         return res.to_string();
     }
 }
@@ -860,57 +766,34 @@ pub struct Enquire {
 }
 
 impl Enquire {
-    pub fn get_mset(&mut self, from: i32, size: i32) -> Result<MSet, XError> {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
-        let obj = ffi::get_mset(self.cxxp.pin_mut(), from, size, &mut err);
-
-        if err == 0 {
-            Ok(MSet { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn get_mset(&mut self, from: i32, size: i32) -> Result<MSet, cxx::Exception> {
+        Ok(MSet { cxxp: ffi::get_mset(self.cxxp.pin_mut(), from, size)? })
     }
 
-    pub fn set_query(&mut self, query: &mut Query) -> Result<(), XError> {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
-        ffi::set_query(self.cxxp.pin_mut(), query.cxxp.pin_mut(), &mut err);
+    pub fn set_query(&mut self, query: &mut Query) -> Result<(), cxx::Exception> {
+        ffi::set_query(self.cxxp.pin_mut(), query.cxxp.pin_mut())?;
 
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+        Ok(())
     }
 
-    pub fn set_sort_by_key(&mut self, mut sorter: MultiValueKeyMaker, reverse: bool) -> Result<(), XError> {
+    pub fn set_sort_by_key(&mut self, mut sorter: MultiValueKeyMaker, reverse: bool) -> Result<(), cxx::Exception> {
         #[allow(unused_unsafe)]
         let mut err = 0;
-        ffi::set_sort_by_key(self.cxxp.pin_mut(), sorter.cxxp.pin_mut(), reverse, &mut err);
+        ffi::set_sort_by_key(self.cxxp.pin_mut(), sorter.cxxp.pin_mut(), reverse)?;
         self.sorter = Some(sorter);
-
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+        Ok(())
     }
 
     pub fn add_matchspy() {
         unimplemented!()
     }
 
-    pub fn add_matchspy_value_count(&mut self, vcms: &mut ValueCountMatchSpy) -> Result<(), XError> {
+    pub fn add_matchspy_value_count(&mut self, vcms: &mut ValueCountMatchSpy) -> Result<(), cxx::Exception> {
         #[allow(unused_unsafe)]
         let mut err = 0;
-        ffi::add_matchspy_value_count(self.cxxp.pin_mut(), vcms.cxxp.pin_mut(), &mut err);
+        ffi::add_matchspy_value_count(self.cxxp.pin_mut(), vcms.cxxp.pin_mut())?;
 
-        if err == 0 {
-            Ok(())
-        } else {
-            Err(XError::Xapian(err))
-        }
+        Ok(())
     }
 }
 
@@ -1105,45 +988,22 @@ pub struct ValueCountMatchSpy {
 }
 
 impl ValueCountMatchSpy {
-    pub fn new(slot: u32) -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_value_count_match_spy(slot, &mut err);
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new(slot: u32) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_value_count_match_spy(slot)? })
     }
 
     // https://xapian.org/docs/facets#toc-entry-5
     // return Xapian::TermIterator
-    pub fn values_begin(&mut self) -> Result<TermIterator, XError> {
-        let mut err = 0;
-        let obj = ffi::value_count_matchspy_values_begin(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(TermIterator { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn values_begin(&mut self) -> Result<TermIterator, cxx::Exception> {
+        Ok(TermIterator { cxxp: ffi::value_count_matchspy_values_begin(self.cxxp.pin_mut())? })
     }
 
-    pub fn values_end(&mut self) -> Result<TermIterator, XError> {
-        let mut err = 0;
-        let obj = ffi::value_count_matchspy_values_end(self.cxxp.pin_mut(), &mut err);
-
-        if err == 0 {
-            Ok(TermIterator { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn values_end(&mut self) -> Result<TermIterator, cxx::Exception> {
+        Ok(TermIterator { cxxp: ffi::value_count_matchspy_values_end(self.cxxp.pin_mut())? })
     }
 
     pub fn get_total(&mut self) -> i32 {
-        let mut err = 0;
-        let rs = ffi::value_count_matchspy_get_total(self.cxxp.pin_mut(), &mut err);
-
-        return rs;
+        ffi::value_count_matchspy_get_total(self.cxxp.pin_mut())
     }
 }
 
@@ -1152,14 +1012,8 @@ pub struct RangeProcessor {
 }
 
 impl RangeProcessor {
-    pub fn new(slot: u32, prefix: &str, flags: RangeProcessorFlags) -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_range_processor(slot, prefix, flags as i32, &mut err);
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new(slot: u32, prefix: &str, flags: RangeProcessorFlags) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_range_processor(slot, prefix, flags as i32)? })
     }
 }
 
@@ -1168,14 +1022,8 @@ pub struct NumberRangeProcessor {
 }
 
 impl NumberRangeProcessor {
-    pub fn new(slot: u32, prefix: &str, flags: RangeProcessorFlags) -> Result<Self, XError> {
-        let mut err = 0;
-        let obj = ffi::new_number_range_processor(slot, prefix, flags as i32, &mut err);
-        if err == 0 {
-            Ok(Self { cxxp: obj })
-        } else {
-            Err(XError::Xapian(err))
-        }
+    pub fn new(slot: u32, prefix: &str, flags: RangeProcessorFlags) -> Result<Self, cxx::Exception> {
+        Ok(Self { cxxp: ffi::new_number_range_processor(slot, prefix, flags as i32)? })
     }
 }
 
@@ -1190,29 +1038,22 @@ pub struct TermIterator {
 // bool term_iterator_eq(TermIterator &titer, TermIterator &other, int8_t &err);
 impl TermIterator {
     pub fn get_termfreq_value(&mut self) -> String {
-        let mut err = 0;
-        let rs = ffi::term_iterator_get_termfreq_value(self.cxxp.pin_mut(), &mut err);
-
+        let rs = ffi::term_iterator_get_termfreq_value(self.cxxp.pin_mut());
         return rs.to_string();
     }
 
     pub fn get_termfreq_freq(&mut self) -> i32 {
-        let mut err = 0;
-        let rs = ffi::term_iterator_get_termfreq_freq(self.cxxp.pin_mut(), &mut err);
-
+        let rs = ffi::term_iterator_get_termfreq_freq(self.cxxp.pin_mut());
         return rs;
     }
 
     pub fn eq(&mut self, other: &mut TermIterator) -> bool {
-        let mut err = 0;
-        let rs = ffi::term_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut(), &mut err);
-
+        let rs = ffi::term_iterator_eq(self.cxxp.pin_mut(), other.cxxp.pin_mut());
         return rs;
     }
 
     pub fn next(&mut self) {
-        let mut err = 0;
-        ffi::term_iterator_next(self.cxxp.pin_mut(), &mut err);
+        ffi::term_iterator_next(self.cxxp.pin_mut());
     }
 }
 
