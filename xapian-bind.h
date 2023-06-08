@@ -66,7 +66,7 @@ void add_float(Document &doc, valueno slot, float in_data);
 void add_double(Document &doc, valueno slot, double in_data);
 void set_data (Document &doc, rust::Str data);
 void add_boolean_term(Document &doc, rust::Str data);
-const std::string &get_doc_data (Document &doc);
+rust::String get_doc_data (Document &doc);
 
 //
 std::unique_ptr<QueryParser> new_query_parser();
@@ -86,7 +86,7 @@ std::unique_ptr<Query> new_query_range(int32_t op, valueno slot, double begin, d
 std::unique_ptr<Query> new_query_double_with_prefix(rust::Str prefix, double _d);
 std::unique_ptr<Query> add_right_query(Query &this_q, int32_t _op, Query &q);
 bool query_is_empty (Query &q);
-const std::string &get_description (Query &q);
+rust::String get_description (Query &q);
 
 //
 std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size);
@@ -96,7 +96,7 @@ void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms);
 //
 int get_matches_estimated (MSet &set);
 int mset_size (MSet &set);
-const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit);
+rust::String mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit);
 std::unique_ptr<MSetIterator> mset_begin (MSet &set);
 std::unique_ptr<MSetIterator> mset_end (MSet &set);
 std::unique_ptr<MSetIterator> mset_back (MSet &set);
@@ -121,7 +121,7 @@ std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy
 int value_count_matchspy_get_total(ValueCountMatchSpy &vcms);
 
 //
-const std::string &term_iterator_get_termfreq_value(TermIterator &titer);
+rust::String term_iterator_get_termfreq_value(TermIterator &titer);
 int term_iterator_get_termfreq_freq(TermIterator &titer);
 bool term_iterator_eq(TermIterator &titer, TermIterator &other);
 void term_iterator_next(TermIterator &titer);

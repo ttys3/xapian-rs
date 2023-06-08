@@ -237,20 +237,8 @@ void add_boolean_term(Document &doc, rust::Str data)
     doc.add_boolean_term(std::string(data));
 }
 
-std::string g_str_0;
-const std::string &get_doc_data (Document &doc) {
-    try
-    {
-        //err = 0;
-        g_str_0 = doc.get_data();
-    }
-    catch (Error ex)
-    {
-        //err = get_err_code(ex.get_type());
-        g_str_0 = std::string("");
-    }
-
-    return g_str_0;
+rust::String get_doc_data (Document &doc) {
+   return doc.get_data();
 }
 
 //////
@@ -331,19 +319,8 @@ bool query_is_empty (Query &q) {
     return q.empty();
 }
 
-std::string g_str_1;
-const std::string &get_description (Query &q) {
-    try
-    {
-        //err = 0;
-        g_str_1 = q.get_description();
-        return g_str_1;
-    }
-    catch (Error ex)
-    {
-        //err = get_err_code(ex.get_type());
-        return NULL;
-    }
+rust::String get_description (Query &q) {
+    return q.get_description();
 }
 
 ////
@@ -386,17 +363,8 @@ std::unique_ptr<MSetIterator> mset_back (MSet &set) {
     return std::make_unique<Xapian::MSetIterator>(set.back());
 }
 
-std::string g_str_snippet;
-const std::string &mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit) {
-    try
-    {
-        g_str_snippet = set.snippet(std::string(text), length, stem, flags, std::string(hi_start), std::string(hi_end), std::string(omit));
-        return g_str_snippet;
-    }
-    catch (Error ex)
-    {
-        return NULL;
-    }
+rust::String mset_snippet(MSet &set, rust::Str text, int32_t length, Stem &stem, int32_t flags, rust::Str hi_start,rust::Str hi_end, rust::Str omit) {
+    return set.snippet(std::string(text), length, stem, flags, std::string(hi_start), std::string(hi_end), std::string(omit));;
 }
 
 std::unique_ptr<Document> mset_iterator_get_document(MSetIterator &iter) {
@@ -467,17 +435,8 @@ std::unique_ptr<TermIterator> value_count_matchspy_values_end(ValueCountMatchSpy
     return std::make_unique<Xapian::TermIterator>(vcms.values_end());
 }
 
-std::string g_str_termfreq_value;
-const std::string &term_iterator_get_termfreq_value(TermIterator &titer) {
-    try
-    {
-        g_str_termfreq_value = *titer;
-        return g_str_termfreq_value;
-    }
-    catch (Error ex)
-    {
-        return NULL;
-    }
+rust::String term_iterator_get_termfreq_value(TermIterator &titer) {
+   return rust::String(*titer);
 }
 
 int term_iterator_get_termfreq_freq(TermIterator &titer) {

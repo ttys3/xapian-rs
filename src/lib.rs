@@ -468,21 +468,21 @@ pub(crate) mod ffi {
         pub(crate) fn add_long(doc: Pin<&mut Document>, slot: u32, data: i64) -> Result<()>;
         pub(crate) fn add_double(doc: Pin<&mut Document>, slot: u32, data: f64) -> Result<()>;
         pub(crate) fn set_data(doc: Pin<&mut Document>, data: &str) -> Result<()>;
-        pub(crate) fn get_doc_data(doc: Pin<&mut Document>) -> Result<&CxxString>;
+        pub(crate) fn get_doc_data(doc: Pin<&mut Document>) -> Result<String>;
         pub(crate) fn add_boolean_term(doc: Pin<&mut Document>, data: &str) -> Result<()>;
 
         pub(crate) fn get_matches_estimated(set: Pin<&mut MSet>) -> Result<i32>;
         pub(crate) fn mset_size(set: Pin<&mut MSet>) -> Result<i32>;
-        pub(crate) fn mset_snippet<'a>(
-            set: Pin<&'a mut MSet>,
-            text: &'a str,
+        pub(crate) fn mset_snippet(
+            set: Pin<&mut MSet>,
+            text: &str,
             length: i32,
-            stem: Pin<&'a mut Stem>,
+            stem: Pin<&mut Stem>,
             flags: i32,
-            hi_start: &'a str,
-            hi_end: &'a str,
-            omit: &'a str,
-        ) -> &'a CxxString;
+            hi_start: &str,
+            hi_end: &str,
+            omit: &str,
+        ) -> String;
         pub(crate) fn mset_iterator_get_document(iter: Pin<&mut MSetIterator>) -> Result<UniquePtr<Document>>;
         pub(crate) fn mset_iterator_eq(iter: Pin<&mut MSetIterator>, other: Pin<&mut MSetIterator>) -> Result<bool>;
         pub(crate) fn mset_iterator_next(iter: Pin<&mut MSetIterator>) -> Result<()>;
@@ -513,7 +513,7 @@ pub(crate) mod ffi {
         pub(crate) fn add_right_query(this_q: Pin<&mut Query>, op: i32, q: Pin<&mut Query>) -> Result<UniquePtr<Query>>;
         pub(crate) fn new_query_double_with_prefix(prefix: &str, d: f64) -> Result<UniquePtr<Query>>;
         pub(crate) fn query_is_empty(this_q: Pin<&mut Query>) -> bool;
-        pub(crate) fn get_description(this_q: Pin<&mut Query>) -> &CxxString;
+        pub(crate) fn get_description(this_q: Pin<&mut Query>) -> String;
 
         pub(crate) fn new_multi_value_key_maker() -> Result<UniquePtr<MultiValueKeyMaker>>;
         pub(crate) fn add_value_to_multi_value_key_maker(this_m: Pin<&mut MultiValueKeyMaker>, slot: u32, asc_desc: bool) -> Result<()>;
@@ -526,7 +526,7 @@ pub(crate) mod ffi {
         pub(crate) fn value_count_matchspy_values_end(vcms: Pin<&mut ValueCountMatchSpy>) -> Result<UniquePtr<TermIterator>>;
         pub(crate) fn value_count_matchspy_get_total(vcms: Pin<&mut ValueCountMatchSpy>) -> i32;
 
-        pub(crate) fn term_iterator_get_termfreq_value<'a>(titer: Pin<&'a mut TermIterator>) -> &'a CxxString;
+        pub(crate) fn term_iterator_get_termfreq_value(titer: Pin<&mut TermIterator>) -> String;
         pub(crate) fn term_iterator_get_termfreq_freq(titer: Pin<&mut TermIterator>) -> i32;
         pub(crate) fn term_iterator_eq(titer: Pin<&mut TermIterator>, other: Pin<&mut TermIterator>) -> bool;
         pub(crate) fn term_iterator_next(titer: Pin<&mut TermIterator>);
@@ -601,16 +601,8 @@ impl Query {
 
     pub fn get_description(&mut self) -> String {
         if !self.cxxp.is_null() {
-            #[allow(unused_unsafe)]
-            unsafe {
-                //let mut err = 0;
-                let res = ffi::get_description(self.cxxp.pin_mut());
-                //if err == 0 {
-                return res.to_string();
-                //} else {
-                //    None
-                //}
-            }
+            let res = ffi::get_description(self.cxxp.pin_mut());
+            return res.to_string();
         }
         String::default()
     }
