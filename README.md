@@ -34,6 +34,14 @@ xapian api docs: https://xapian.org/docs/apidoc/
 doc count: 31944, index doc took: 6251ms
 ```
 
+build with `--enable-log` will result in performance drop, **about 3x slower**.
+
+check log enabled or not: `grep XAPIAN_DEBUG_LOG xapian-core/config.h`
+
+```
+doc count: 31944, index doc took: 18154ms
+```
+
 ## troubleshooting
 
 ```
