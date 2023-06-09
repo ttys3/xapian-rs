@@ -1,4 +1,5 @@
 pub mod enums;
+pub mod easy;
 
 use autocxx::prelude::*;
 
@@ -9,7 +10,12 @@ use autocxx::prelude::*;
 
 include_cpp! {
     #include "xapian.h"
+
+    #include "easy_wrapper.h"
+
     safety!(unsafe_ffi)
+
+    generate!("writable_database_close")
 
     // Xapian::version_string
     generate!("Xapian::version_string")
@@ -191,6 +197,6 @@ mod test {
 
         println!("open WritableDatabase ok");
         db.pin_mut().commit();
-        db.pin_mut().close();
+        // db.pin_mut().close();
     }
 }

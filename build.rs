@@ -29,7 +29,9 @@ fn main() -> miette::Result<()> {
         Path::new(&manifest_dir).join("include")
     };
 
-    let mut b = autocxx_build::Builder::new("src/lib.rs", &[&xapian_include_dir])
+    let src_path = std::path::PathBuf::from("src");
+
+    let mut b = autocxx_build::Builder::new("src/lib.rs", &[&xapian_include_dir, &src_path])
         .extra_clang_args(&["-std=c++17"])
         .build()?;
 

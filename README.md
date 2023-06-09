@@ -20,11 +20,15 @@ the Xapian developer guide https://xapian-developer-guide.readthedocs.io/
 
 https://xapian.org/docs/
 
-cxx tuts https://cxx.rs/tutorial.html
-
 new version news: https://lists.xapian.org/pipermail/xapian-discuss/2023-March/009961.html
 
 xapian api docs: https://xapian.org/docs/apidoc/
+
+## rust binding
+
+cxx tuts https://cxx.rs/tutorial.html
+
+autocxx book https://google.github.io/autocxx/
 
 ## performance
 
