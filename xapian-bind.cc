@@ -8,56 +8,6 @@
 
 using namespace Xapian;
 
-char get_err_code(const char *type)
-{
-    signed char err = 0;
-
-    if (strcmp(type, (char *)"DatabaseModifiedError") == 0)
-        err = -1;
-    else if (strcmp(type, (char *)"DatabaseLockError") == 0)
-        err = -2;
-    else if (strcmp(type, (char *)"LogicError") == 0)
-        err = -3;
-    else if (strcmp(type, (char *)"AssertionError") == 0)
-        err = -4;
-    else if (strcmp(type, (char *)"InvalidArgumentError") == 0)
-        err = -5;
-    else if (strcmp(type, (char *)"InvalidOperationError") == 0)
-        err = -6;
-    else if (strcmp(type, (char *)"UnimplementedError") == 0)
-        err = -7;
-    else if (strcmp(type, (char *)"RuntimeError") == 0)
-        err = -8;
-    else if (strcmp(type, (char *)"DatabaseError") == 0)
-        err = -9;
-    else if (strcmp(type, (char *)"DatabaseCorruptError") == 0)
-        err = -10;
-    else if (strcmp(type, (char *)"DatabaseCreateError") == 0)
-        err = -11;
-    else if (strcmp(type, (char *)"DatabaseOpeningError") == 0)
-        err = -12;
-    else if (strcmp(type, (char *)"DatabaseVersionError") == 0)
-        err = -13;
-    else if (strcmp(type, (char *)"DocNotFoundError") == 0)
-        err = -14;
-    else if (strcmp(type, (char *)"FeatureUnavailableError") == 0)
-        err = -15;
-    else if (strcmp(type, (char *)"InternalError") == 0)
-        err = -16;
-    else if (strcmp(type, (char *)"NetworkError") == 0)
-        err = -17;
-    else if (strcmp(type, (char *)"NetworkTimeoutError") == 0)
-        err = -18;
-    else if (strcmp(type, (char *)"QueryParserError") == 0)
-        err = -19;
-    else if (strcmp(type, (char *)"RangeError") == 0)
-        err = -20;
-    else if (strcmp(type, (char *)"SerialisationError") == 0)
-        err = -21;
-
-    return err;
-}
-
 /** Open for read/write; create if no db exists. */
 const int DB_CREATE_OR_OPEN = 1;
 /** Create a new database; fail if db exists. */
