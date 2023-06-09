@@ -15,6 +15,11 @@ const int DB_CREATE = 2;
 /** Overwrite existing db; create if none exists. */
 const int DB_CREATE_OR_OVERWRITE = 3;
 
+rust::Str version_string()
+{
+    return Xapian::version_string();
+}
+
 std::unique_ptr<Database> new_database()
 {
     return std::make_unique<Xapian::Database>();

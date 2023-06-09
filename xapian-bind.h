@@ -24,6 +24,8 @@ namespace rust::behavior {
 
 using namespace Xapian;
 
+rust::Str version_string();
+
 std::unique_ptr<Database> new_database();
 std::unique_ptr<Enquire> new_enquire(Database &db);
 

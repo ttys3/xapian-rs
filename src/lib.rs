@@ -433,6 +433,7 @@ pub(crate) mod ffi {
     unsafe extern "C++" {
         include!("xapian/xapian-bind.h");
 
+        pub(crate) fn version_string() -> &'static str;
         pub(crate) fn new_database() -> Result<UniquePtr<Database>>;
         pub(crate) fn new_database_with_path(path: &str, db_type: i32) -> Result<UniquePtr<Database>>;
         pub(crate) fn database_reopen(db: Pin<&mut Database>) -> Result<()>;
@@ -533,8 +534,11 @@ pub(crate) mod ffi {
     }
 }
 
-#[warn(unused_unsafe)]
+pub fn version_string() ->&'static str {
+    ffi::version_string()
+}
 
+#[warn(unused_unsafe)]
 pub struct MultiValueKeyMaker {
     pub cxxp: UniquePtr<ffi::MultiValueKeyMaker>,
 }
