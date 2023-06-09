@@ -12,6 +12,12 @@ xapian bind for rust
 
 ## crate maintainers docs
 
+c ffi https://doc.rust-lang.org/nomicon/ffi.html
+
+with cmake crate example https://eshard.com/posts/Rust-Cxx-interop
+
+Rust and C++ interoperability https://sites.google.com/a/chromium.org/dev/Home/chromium-security/memory-safety/rust-and-c-interoperability
+
 xapian github repo: https://github.com/xapian/xapian
 
 User guide online: Getting Started with Xapian https://getting-started-with-xapian.readthedocs.io/
