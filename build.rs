@@ -1,12 +1,7 @@
-use cxx_build::CFG;
 use std::env;
 use std::path::Path;
 
-fn main() {
-    if cfg!(trybuild) {
-        return;
-    }
-
+fn main() -> miette::Result<()> {
     let mut vendored_xapian = env::var("CARGO_FEATURE_VENDORED_XAPIAN").is_ok();
     let try_to_use_system_xapian = !vendored_xapian;
 
@@ -26,26 +21,22 @@ fn main() {
         }
     }
 
+    // include path
     let manifest_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
     let xapian_include_dir = if vendored_xapian {
         Path::new(&manifest_dir).join("xapian/xapian-core/include")
     } else {
         Path::new(&manifest_dir).join("include")
     };
-    CFG.exported_header_dirs.push(&xapian_include_dir);
 
-    // https://docs.rs/cc/1.0.79/cc/struct.Build.html#method.compile
-    // The output string argument determines the file name for the compiled library.
-    // The Rust compiler will create an assembly named “lib”+output+“.a”. MSVC will create a file named output+“.lib”.
+    let mut b = autocxx_build::Builder::new("src/lib.rs", &[&xapian_include_dir])
+        .extra_clang_args(&["-std=c++17"])
+        .build()?;
 
-    // https://lists.xapian.org/pipermail/xapian-discuss/2023-March/009961.html
-    // Currently master requires C++17 to build xapian
-    let sources = vec!["src/lib.rs"];
-    cxx_build::bridges(sources)
-        .file("xapian-bind.cc")
-        .flag_if_supported("-std=c++17")
+    // This assumes all your C++ bindings are in main.rs
+    b.flag_if_supported("-std=c++17")
         .flag_if_supported("-Wno-deprecated-declarations")
-        .compile("xapian-rs");
+        .compile("autocxx-xapian-rs"); // arbitrary library name, pick anything
 
     // external lib
     // static, dylib, framework, link-arg
@@ -59,8 +50,6 @@ fn main() {
     }
 
     println!("cargo:rustc-link-lib=m");
-
-    println!("cargo:rerun-if-changed=xapian-bind.cc");
-    println!("cargo:rerun-if-changed=xapian-bind.h");
     println!("cargo:rerun-if-changed=src/lib.rs");
+    Ok(())
 }
