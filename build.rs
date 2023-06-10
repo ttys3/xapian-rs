@@ -8,6 +8,11 @@ fn main() -> miette::Result<()> {
     } else {
         "xapian-core"
     };
+    let link_lib_name = if xapian_15 {
+        "xapian-1.5"
+    } else {
+        "xapian"
+    };
 
     let mut vendored_xapian = env::var("CARGO_FEATURE_VENDORED_XAPIAN").is_ok();
     let try_to_use_system_xapian = !vendored_xapian;
@@ -67,12 +72,13 @@ fn main() -> miette::Result<()> {
     // static, dylib, framework, link-arg
     if vendored_xapian {
         println!("cargo:rustc-link-search=all=xapian/xapian-core/.libs");
-        println!("cargo:rustc-link-lib=static=xapian-1.5");
-        println!("cargo:rustc-link-lib=dylib=xapian-1.5");
+        println!("cargo:rustc-link-lib=static={}", link_lib_name);
+        println!("cargo:rustc-link-lib=dylib={}", link_lib_name);
         // export LD_LIBRARY_PATH=xapian/xapian-core/.libs
     } else {
-        println!("cargo:rustc-link-lib=xapian");
+        println!("cargo:rustc-link-lib={}", link_lib_name);
     }
+    println!("cargo:warning=link lib name: {}", link_lib_name);
 
     println!("cargo:rerun-if-changed=src/lib.rs");
     Ok(())
