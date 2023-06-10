@@ -67,3 +67,18 @@ use `Xapian::Error` will fix the problem.
 HACKING: `XAPIAN_DEBUG_LOG=-` send output to stderr, not stdout.
 
 `XAPIAN_DEBUG_FLAGS`
+
+## docs
+
+why not use docs.rs to host docs?
+
+we need external libs to build this crate: `libxapian` and `libclang`
+
+docs.rs currently is not so friendly to such kind of need.
+
+ref https://docs.rs/about/builds#missing-dependencies
+
+> Docs.rs dependencies are managed through [crates-build-env](https://github.com/rust-lang/crates-build-env).
+> See [Forge](https://forge.rust-lang.org/docs-rs/add-dependencies.html) for how to add a dependency.
+
+
