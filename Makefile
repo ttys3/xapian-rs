@@ -1,5 +1,5 @@
 doc:
-	cargo doc --document-private-items -F vendored-xapian
+	cargo doc --no-deps --document-private-items -F vendored-xapian
 	echo "see generated documentation under: $(shell pwd)target/doc/xapian/ffi/"
 
 test: export LD_LIBRARY_PATH=xapian/xapian-core/.libs
