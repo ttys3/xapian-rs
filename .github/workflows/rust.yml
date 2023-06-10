@@ -22,7 +22,7 @@ jobs:
         dnf install -y dnf-plugins-core
         dnf copr enable -y ttys3/my-fedora-packages
         dnf upgrade -y --refresh
-        dnf install -y cargo rust gcc-c++ cmake make
+        dnf install -y cargo rust gcc-c++ clang-devel cmake make
         dnf install -y xapian-core xapian-core-libs xapian-core-devel
     - name: Check
       run: cargo check --verbose
