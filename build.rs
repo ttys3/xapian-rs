@@ -26,12 +26,14 @@ fn main() -> miette::Result<()> {
             for include in &lib.include_paths {
                 println!("cargo:root={}", include.display());
             }
-            println!("cargo:warning=Found system xapian: {}, include_paths: {:?}, libs: {:?}",
+            println!("cargo:warning=found and use system xapian: {}, include_paths: {:?}, libs: {:?}",
                      pkg_config_lib_name, &lib.include_paths, &lib.libs);
         } else {
-            println!("cargo:warning=Failed to find system xapian, falling back to vendored");
+            println!("cargo:warning=failed to find system xapian, falling back to vendored");
             vendored_xapian = true;
         }
+    } else {
+        println!("cargo:warning=use vendored xapian");
     }
 
     // include path
@@ -81,5 +83,7 @@ fn main() -> miette::Result<()> {
     println!("cargo:warning=link lib name: {}", link_lib_name);
 
     println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=src/easy_wrapper.h");
+    println!("cargo:rerun-if-changed=src/easy_wrapper.cc");
     Ok(())
 }
