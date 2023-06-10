@@ -1,4 +1,10 @@
 # xapian-rs
+
+[![crates.io](https://badgen.net/crates/v/xapian)](https://crates.io/crates/xapian)
+[![docs](https://badgen.net/static/docs/passing/green?icon=github)](https://ttys3.github.io/xapian-rs/xapian/)
+![downloads](https://badgen.net/crates/d/xapian)
+![latest version downloads](https://badgen.net/crates/dl/xapian)
+
 xapian bind for rust
 
 ## honey backend status
