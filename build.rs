@@ -29,7 +29,7 @@ fn main() -> miette::Result<()> {
         Path::new(&manifest_dir).join("include")
     };
 
-    let src_path = std::path::PathBuf::from("src");
+    let src_path = Path::new(&manifest_dir).join("src");
 
     let mut b = autocxx_build::Builder::new("src/lib.rs", &[&xapian_include_dir, &src_path])
         .extra_clang_args(&["-std=c++17"])
@@ -38,6 +38,8 @@ fn main() -> miette::Result<()> {
     // This assumes all your C++ bindings are in main.rs
     b.flag_if_supported("-std=c++17")
         .flag_if_supported("-Wno-deprecated-declarations")
+        .include(&src_path)
+        .file(Path::new(&manifest_dir).join("src/easy_wrapper.cc"))
         .compile("autocxx-xapian-rs"); // arbitrary library name, pick anything
 
     // external lib
@@ -51,7 +53,6 @@ fn main() -> miette::Result<()> {
         println!("cargo:rustc-link-lib=xapian");
     }
 
-    println!("cargo:rustc-link-lib=m");
     println!("cargo:rerun-if-changed=src/lib.rs");
     Ok(())
 }

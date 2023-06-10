@@ -9,13 +9,13 @@ repository = "https://github.com/ttys3/xapian-rs.git"
 readme = "README.md"
 authors = ["Valeriy Bushenev <ValeriyBushenev@gmail.com>", "David Tolnay <dtolnay@gmail.com>"]
 license = "MIT"
-links = "xapian-rs"
+links = "autocxx-xapian-rs"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-cxx = { version = "1.0.95", features = ["c++14", "c++17"] }
+cxx = { version = "1.0.95", features = ["c++17"] }
 autocxx = "0.25.0"
 
 [build-dependencies]

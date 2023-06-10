@@ -12,6 +12,11 @@
 
 using namespace Xapian;
 
+rust::Str version_string()
+{
+    return Xapian::version_string();
+}
+
 void writable_database_close (WritableDatabase &db) {
     db.close();
 }

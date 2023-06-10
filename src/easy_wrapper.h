@@ -7,9 +7,10 @@
 
 
 #pragma once
-
+#include "cxx.h"
 #include <memory>
 #include <xapian.h>
+
 #include <string>
 #include <string.h>
 
@@ -24,14 +25,15 @@ namespace rust::behavior {
     static void trycatch(Try &&func, Fail &&fail) noexcept try {
     func();
 } catch (const Xapian::Error& e) {
-fail("[Xapian Error] " + std::string(e.get_type()) + ": " + e.get_msg());
-} catch (const std::exception &e) {
-fail(e.what());
-}
+        fail("[Xapian Error] " + std::string(e.get_type()) + ": " + e.get_msg());
+    } catch (const std::exception &e) {
+        fail(e.what());
+    }
 }
 
 using namespace Xapian;
 
+rust::Str version_string();
 
 void writable_database_close (WritableDatabase &db);
 

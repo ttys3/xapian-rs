@@ -10,9 +10,8 @@ use autocxx::prelude::*;
 
 include_cpp! {
     #include "xapian.h"
-
     #include "easy_wrapper.h"
-
+    name!(ffi_base)
     safety!(unsafe_ffi)
 
     generate!("writable_database_close")
@@ -179,16 +178,31 @@ include_cpp! {
     generate!("Xapian::Compactor")
 }
 
+// #[cxx::bridge]
+// mod ffi {
+//
+//     #[namespace = "Xapian"]
+//     unsafe extern "C++" {
+//         include!("easy_wrapper.h");
+//
+//         pub(crate) fn writable_database_close(db: Pin<&mut WritableDatabase>) -> Result<()>;
+//     }
+//
+//     // `use` items are not allowed within cxx bridge
+//     // pub use ffi_base::*;
+//     // pub use easy::*;
+// }
+
 // write some tests
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::ffi::Xapian::WritableDatabase;
-    use crate::ffi::Xapian::{DB_CREATE_OR_OPEN, DB_BACKEND_HONEY};
+    use crate::ffi_base::Xapian::WritableDatabase;
+    use crate::ffi_base::Xapian::{DB_CREATE_OR_OPEN, DB_BACKEND_HONEY};
 
     #[test]
     fn test_xapian() {
-        println!("xapian lib version: {:?}", crate::ffi::Xapian::version_string());
+        println!("xapian lib version: {:?}", crate::ffi_base::Xapian::version_string());
         // https://xapian.org/docs/sourcedoc/html/namespaceXapian_1_1Chert.html#ad328887e1b0e513dff7f50f62a645a40
         let _ = std::fs::create_dir_all("./data");
         // Honey backend doesn't support updating existing databases
@@ -198,5 +212,6 @@ mod test {
         println!("open WritableDatabase ok");
         db.pin_mut().commit();
         // db.pin_mut().close();
+        crate::ffi_base::writable_database_close(db.pin_mut());
     }
 }
