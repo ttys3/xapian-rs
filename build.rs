@@ -1,5 +1,5 @@
 use std::env;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 fn main() -> miette::Result<()> {
     let xapian_15 = env::var("CARGO_FEATURE_XAPIAN_1_5").is_ok();
@@ -46,7 +46,7 @@ fn main() -> miette::Result<()> {
             Path::new(&manifest_dir).join("include/xapian-1.4")
         }
     } else {
-        sys_include_dir
+        PathBuf::from(sys_include_dir)
     };
 
     let src_path = Path::new(&manifest_dir).join("src");
