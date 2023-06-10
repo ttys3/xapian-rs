@@ -22,6 +22,8 @@ fn main() -> miette::Result<()> {
     }
 
     // include path
+    // xapian 1.5 /usr/include/xapian-1.5/xapian.h and /usr/include/xapian-1.5/xapian/*.h
+    // xapian 1.4 /usr/include/xapian.h and /usr/include/xapian/*.h
     let manifest_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
     let xapian_include_dir = if vendored_xapian {
         Path::new(&manifest_dir).join("xapian/xapian-core/include")
