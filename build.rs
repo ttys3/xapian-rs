@@ -21,7 +21,8 @@ fn main() -> miette::Result<()> {
             for include in &lib.include_paths {
                 println!("cargo:root={}", include.display());
             }
-            println!("cargo:info=Found system xapian: {}", pkg_config_lib_name);
+            println!("cargo:warning=Found system xapian: {}, include_paths: {:?}, libs: {:?}",
+                     pkg_config_lib_name, &lib.include_paths, &lib.libs);
         } else {
             println!("cargo:warning=Failed to find system xapian, falling back to vendored");
             vendored_xapian = true;
