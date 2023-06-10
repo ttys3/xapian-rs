@@ -213,5 +213,6 @@ mod test {
         db.pin_mut().commit();
         // db.pin_mut().close();
         crate::ffi_base::writable_database_close(db.pin_mut());
+        println!("close WritableDatabase ok");
     }
 }
