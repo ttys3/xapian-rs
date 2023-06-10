@@ -31,7 +31,12 @@ serde = { version = "1.0.163", features = ["derive"] }
 serde_json = "1.0.96"
 
 [features]
+# Note: crates.io imposes additional constraints on feature name syntax that
+# they must only be ASCII alphanumeric characters or _, -, or +.
+default = ["xapian-1_5"]
 vendored-xapian = []
+xapian-1_5 = []
+xapian-1_4 = []
 64bit = [ "64bit-docid", "64bit-termcount", "64bit-termpos" ]
 64bit-docid = []
 64bit-termcount = []
