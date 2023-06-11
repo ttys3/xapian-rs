@@ -7,6 +7,39 @@
 
 xapian bind for rust
 
+## TODO list
+
+ref file:///usr/share/doc/xapian-core-devel/apidoc/html/inherits.html
+
+- [x] Database
+- [x] WritableDatabase
+- [x] Document
+- [x] Enquire
+- [ ] ESet
+- [ ] ESetIterator
+- [x] MSet
+- [x] MSetIterator
+- [x] MatchSpy
+- [x] ValueCountMatchSpy
+- [ ] PositionIterator
+- [ ] PostingIterator
+- [x] Query
+- [x] QueryParser
+- [ ] RSet
+- [ ] RangeProcessor
+- [ ] DateRangeProcessor
+- [x] NumberRangeProcessor
+- [ ] UnitRangeProcessor
+- [x] Stem
+- [ ] Stopper
+- [ ] SimpleStopper
+- [ ] StemStopper
+- [ ] TermGenerator
+- [x] TermIterator
+- [ ] Utf8Iterator
+- [ ] ValueIterator
+- [ ] Weight
+
 ## honey backend status
 
 > The remaining blockers for this are:
