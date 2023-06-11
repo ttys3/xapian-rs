@@ -49,8 +49,8 @@ fn main() -> Result<()> {
     let mut enquire = db.new_enquire().expect("Error creating enquire");
     enquire.set_query(&mut query).expect("set_query failed");
 
-    let mut genres_spy = xapian::ValueCountMatchSpy::new(1).expect("Error creating value count match spy");
-    enquire.add_matchspy_value_count(&mut genres_spy).expect("Error adding matchspy");
+    let mut vcspy = xapian::ValueCountMatchSpy::new(2).expect("Error creating value count match spy");
+    enquire.add_matchspy_value_count(&mut vcspy).expect("Error adding matchspy");
 
     enquire.set_sort_by_value(0, true).expect("Error setting sort by value year desc");
 
@@ -84,11 +84,11 @@ fn main() -> Result<()> {
         idx += 1;
     }
 
-    println!("genres_spy: {}", genres_spy.get_total());
+    println!("spy total: {}", vcspy.get_total());
 
-    let mut spy = genres_spy.values_begin().unwrap();
+    let mut spy = vcspy.values_begin().unwrap();
     loop {
-        if spy.eq(&mut genres_spy.values_end().unwrap()) {
+        if spy.eq(&mut vcspy.values_end().unwrap()) {
             break;
         }
         let value = spy.get_termfreq_value();
