@@ -10,6 +10,8 @@ use autocxx::prelude::*;
 include_cpp! {
     #include "xapian.h"
     #include "easy_wrapper.h"
+
+    // note: the generated `ffi_base` mod is only public within the crate
     name!(ffi_base)
     safety!(unsafe_ffi)
 
@@ -177,7 +179,6 @@ include_cpp! {
     generate!("Xapian::Compactor")
 }
 
-
 // autocxx::include_cpp! {
 //         #include "xapian.h"
 //         #include "easy_wrapper.h"
@@ -188,7 +189,6 @@ include_cpp! {
 //
 //         // generate!("writable_database_close")
 // }
-
 
 // #[cxx::bridge]
 // mod ffi {
@@ -205,7 +205,6 @@ include_cpp! {
 //     // pub use easy::*;
 // }
 
-
 pub struct WritableDatabase {
     db: cxx::UniquePtr<crate::ffi_base::Xapian::WritableDatabase>,
 }
@@ -213,7 +212,7 @@ pub struct WritableDatabase {
 impl WritableDatabase {
     pub fn new(path: &str, flags: i32, backend: i32) -> Self {
         cxx::let_cxx_string!(path = path);
-        let db = crate::ffi_base::Xapian::WritableDatabase::new1(&path, c_int(flags), c_int(backend)).within_unique_ptr();
+        let db = crate::ffi_base::Xapian::WritableDatabase::new1(&path, c_int(flags | backend), c_int(0)).within_unique_ptr();
         Self { db }
     }
 
@@ -222,6 +221,8 @@ impl WritableDatabase {
     }
 
     pub fn close(&mut self) {
+        // the close() method in C++ code is extended from parent class Database
+        // autocxx can't handle this case, so we have to write a wrapper function
         crate::ffi_base::writable_database_close(self.db.pin_mut());
     }
 }
@@ -237,8 +238,8 @@ impl Default for WritableDatabase {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::ffi_base::Xapian::{DB_BACKEND_HONEY, DB_CREATE_OR_OPEN};
     use crate::WritableDatabase;
-    use crate::ffi_base::Xapian::{DB_CREATE_OR_OPEN, DB_BACKEND_HONEY};
 
     #[test]
     fn test_xapian() {
@@ -247,7 +248,7 @@ mod test {
         let _ = std::fs::create_dir_all("./data");
         // Honey backend doesn't support updating existing databases
         cxx::let_cxx_string!(path = "./data/xapian-hello");
-        let mut db = crate::ffi_base::Xapian::WritableDatabase::new1(&path, c_int(DB_CREATE_OR_OPEN), c_int(DB_BACKEND_HONEY)).within_unique_ptr();
+        let mut db = crate::ffi_base::Xapian::WritableDatabase::new1(&path, c_int(DB_CREATE_OR_OPEN | DB_BACKEND_HONEY), c_int(0)).within_unique_ptr();
 
         println!("open WritableDatabase ok");
         db.pin_mut().commit();
