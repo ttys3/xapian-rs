@@ -188,20 +188,43 @@ pub enum TermGeneratorFlag {
     /// Index data required for spelling correction.
     FLAG_SPELLING = 128, // Value matches QueryParser flag.
 
-    /** Enable generation of n-grams from CJK text.
-        *
-        *  With this enabled, spans of CJK characters are split into unigrams
-        *  and bigrams, with the unigrams carrying positional information.
-        *  Non-CJK characters are split into words as normal.
-        *
-        *  The corresponding option needs to be passed to QueryParser.
-        *
-        *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
-        *  enabled in 1.2.8 and later by setting environment variable
-        *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
-        *  in 1.4.11).
+    /** Generate n-grams for scripts without explicit word breaks.
+     *
+     *  Spans of characters in such scripts are split into unigrams
+     *  and bigrams, with the unigrams carrying positional information.
+     *  Text in other scripts is split into words as normal.
+     *
+     *  The QueryParser::FLAG_NGRAMS flag needs to be passed to
+     *  QueryParser.
+     *
+     *  This mode can also be enabled in 1.2.8 and later by setting
+     *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
+     *  doing so was deprecated in 1.4.11).
+     *
+     *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+     *  Korean), but in 1.5.0 it's been extended to other languages.  To
+     *  reflect this change the new and preferred name is FLAG_NGRAMS,
+     *  which was added as an alias for forward compatibility in Xapian
+     *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
+     *  &lt; 1.4.23.
+     *
+     *  @since Added in Xapian 1.4.23.
      */
-    FLAG_CJK_NGRAM = 2048, // Value matches QueryParser flag.
+    FLAG_NGRAMS = 2048, // Value matches QueryParser flag.
+
+    /** Find word breaks for text in scripts without explicit word breaks.
+     *
+     *  With this option enabled, spans of text written in such scripts are
+     *  split into words using ICU (which uses heuristics and/or
+     *  dictionaries to do so).  Text in other scripts is split into words
+     *  as normal.
+     *
+     *  The QueryParser::FLAG_WORD_BREAKS flag needs to be passed to
+     *  QueryParser.
+     *
+     *  @since Added in Xapian 1.5.0.
+     */
+    FLAG_WORD_BREAKS = 4096 // Value matches QueryParser flag
 }
 
 /// QueryParser::feature_flag
@@ -295,53 +318,129 @@ pub enum QueryParserFeatureFlag {
      */
     FLAG_AUTO_MULTIWORD_SYNONYMS = 1024,
 
-    /** Enable generation of n-grams from CJK text.
-        *
-        *  With this enabled, spans of CJK characters are split into unigrams
-        *  and bigrams, with the unigrams carrying positional information.
-        *  Non-CJK characters are split into words as normal.
-        *
-        *  The corresponding option needs to have been used at index time.
-        *
-        *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
-        *  enabled in 1.2.8 and later by setting environment variable
-        *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
-        *  in 1.4.11).
+    /** Generate n-grams for scripts without explicit word breaks.
+     *
+     *  Spans of characters in such scripts are split into unigrams
+     *  and bigrams, with the unigrams carrying positional information.
+     *  Text in other scripts is split into words as normal.
+     *
+     *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
+     *  index time.
+     *
+     *  This mode can also be enabled in 1.2.8 and later by setting
+     *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
+     *  doing so was deprecated in 1.4.11).
+     *
+     *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+     *  Korean), but in 1.5.0 it's been extended to other languages.  To
+     *  reflect this change the new and preferred name is FLAG_NGRAMS,
+     *  which was added as an alias for forward compatibility in Xapian
+     *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
+     *  &lt; 1.4.23.
+     *
+     *  @since Added in Xapian 1.4.23.
      */
-    FLAG_CJK_NGRAM = 2048,
+    FLAG_NGRAMS = 2048,
+
+    /** Find word breaks for text in scripts without explicit word breaks.
+     *
+     *  With this option enabled, spans of text written in such scripts are
+     *  split into words using ICU (which uses heuristics and/or
+     *  dictionaries to do so).  Text in other scripts is split into words
+     *  as normal.
+     *
+     *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
+     *  index time.
+     *
+     *  @since Added in Xapian 1.5.0.
+     */
+    FLAG_WORD_BREAKS = 4096,
+
+    /** Support extended wildcard '*'.
+     *
+     *  This flag enables support for wildcard '*' matching zero
+     *  or more characters, which may be used anywhere in a word.
+     *
+     *  Such wildcards can be relatively expensive to expand and to match
+     *  so benchmark your system carefully if you have a lot of documents
+     *  and/or a high search load.
+     *
+     *  FLAG_WILDCARD is ignored if this flag is specified.
+     *
+     *  @since Added in Xapian 1.5.0.
+     */
+    FLAG_WILDCARD_MULTI = 8192,
+
+    /** Support extended wildcard '?'.
+     *
+     *  This flag enables support for wildcard '?' matching exactly one
+     *  character, which may be use anywhere in a word.
+     *
+     *  Such wildcards can be relatively expensive to expand and to match
+     *  so benchmark your system carefully if you have a lot of documents
+     *  and/or a high search load.
+     *
+     *  FLAG_WILDCARD is ignored if this flag is specified.
+     *
+     *  @since Added in Xapian 1.5.0.
+     */
+    FLAG_WILDCARD_SINGLE = 16384,
+
+    /** Enable glob-style wildcarding.
+     *
+     *  This enables all supported glob-style wildcard pattern flags
+     *  - currently that's FLAG_WILDCARD_MULTI and FLAG_WILDCARD_SINGLE.
+     *
+     *  FLAG_WILDCARD is ignored if this flag is specified.
+     *
+     *  @since Added in Xapian 1.5.0.
+     */
+    FLAG_WILDCARD_GLOB = Self::FLAG_WILDCARD_MULTI as i32 | Self::FLAG_WILDCARD_SINGLE as i32,
+
+    /** Support fuzzy matching.
+     *
+     *  E.g. "unserten~3" would expand to "uncertain" (and likely other
+     *  terms).
+     *
+     *  foo~ uses edit distance of 2
+     *  since~0.2 uses edit distance of length("since") * 0.2 = 5 * 0.2 = 1
+     *
+     *  @since Added in Xapian 1.5.0.
+     */
+    FLAG_FUZZY = 32768,
 
     /** Accumulate unstem and stoplist results.
-        *
-        *  By default, the unstem and stoplist data is reset by a call to
-        *  parse_query(), which makes sense if you use the same QueryParser
-        *  object to parse a series of independent queries.
-        *
-        *  If you're using the same QueryParser object to parse several
-        *  fields on the same query form, you may want to have the unstem
-        *  and stoplist data combined for all of them, in which case you
-        *  can use this flag to prevent this data from being reset.
-        *
-        *  @since Added in Xapian 1.4.18.
+     *
+     *  By default, the unstem and stoplist data is reset by a call to
+     *  parse_query(), which makes sense if you use the same QueryParser
+     *  object to parse a series of independent queries.
+     *
+     *  If you're using the same QueryParser object to parse several
+     *  fields on the same query form, you may want to have the unstem
+     *  and stoplist data combined for all of them, in which case you
+     *  can use this flag to prevent this data from being reset.
+     *
+     *  @since Added in Xapian 1.4.18.
      */
     FLAG_ACCUMULATE = 65536,
 
     /** Produce a query which doesn't use positional information.
-        *
-        *  With this flag enabled, no positional information will be used
-        *  and any query operations which would use it are replaced by
-        *  the nearest equivalent which doesn't (so phrase searches, NEAR
-        *  and ADJ will result in OP_AND).
-        *
-        *  @since Added in Xapian 1.4.19.
+     *
+     *  With this flag enabled, no positional information will be used
+     *  and any query operations which would use it are replaced by
+     *  the nearest equivalent which doesn't (so phrase searches, NEAR
+     *  and ADJ will result in OP_AND).
+     *
+     *  @since Added in Xapian 1.4.19.
      */
     FLAG_NO_POSITIONS = 0x20000,
 
     /** The default flags.
-        *
-        *  Used if you don't explicitly pass any to @a parse_query().
-        *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
-        *
-        *  Added in Xapian 1.0.11.
+     *
+     *  Used if you don't explicitly pass any to @a parse_query().
+     *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
+     *
+     *  @since Added in Xapian 1.0.11.
      */
     FLAG_DEFAULT = Self::FLAG_PHRASE as i32 | Self::FLAG_BOOLEAN as i32 | Self::FLAG_LOVEHATE as i32,
 }
