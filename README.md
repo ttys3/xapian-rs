@@ -1,4 +1,10 @@
 # xapian-rs
+
+[![crates.io](https://badgen.net/crates/v/xapian)](https://crates.io/crates/xapian)
+[![docs](https://badgen.net/static/docs/passing/green?icon=github)](https://ttys3.github.io/xapian-rs/xapian/)
+![downloads](https://badgen.net/crates/d/xapian)
+![latest version downloads](https://badgen.net/crates/dl/xapian)
+
 xapian bind for rust
 
 ## honey backend status
@@ -12,12 +18,6 @@ xapian bind for rust
 
 ## crate maintainers docs
 
-c ffi https://doc.rust-lang.org/nomicon/ffi.html
-
-with cmake crate example https://eshard.com/posts/Rust-Cxx-interop
-
-Rust and C++ interoperability https://sites.google.com/a/chromium.org/dev/Home/chromium-security/memory-safety/rust-and-c-interoperability
-
 xapian github repo: https://github.com/xapian/xapian
 
 User guide online: Getting Started with Xapian https://getting-started-with-xapian.readthedocs.io/
@@ -26,11 +26,22 @@ the Xapian developer guide https://xapian-developer-guide.readthedocs.io/
 
 https://xapian.org/docs/
 
-cxx tuts https://cxx.rs/tutorial.html
-
 new version news: https://lists.xapian.org/pipermail/xapian-discuss/2023-March/009961.html
 
 xapian api docs: https://xapian.org/docs/apidoc/
+
+## rust binding
+
+cxx tuts https://cxx.rs/tutorial.html
+
+autocxx book https://google.github.io/autocxx/
+
+
+c ffi https://doc.rust-lang.org/nomicon/ffi.html
+
+with cmake crate example https://eshard.com/posts/Rust-Cxx-interop
+
+Rust and C++ interoperability https://sites.google.com/a/chromium.org/dev/Home/chromium-security/memory-safety/rust-and-c-interoperability
 
 ## performance
 
@@ -71,3 +82,18 @@ use `Xapian::Error` will fix the problem.
 HACKING: `XAPIAN_DEBUG_LOG=-` send output to stderr, not stdout.
 
 `XAPIAN_DEBUG_FLAGS`
+
+## docs
+
+why not use docs.rs to host docs?
+
+we need external libs to build this crate: `libxapian` and `libclang`
+
+docs.rs currently is not so friendly to such kind of need.
+
+ref https://docs.rs/about/builds#missing-dependencies
+
+> Docs.rs dependencies are managed through [crates-build-env](https://github.com/rust-lang/crates-build-env).
+> See [Forge](https://forge.rust-lang.org/docs-rs/add-dependencies.html) for how to add a dependency.
+
+
