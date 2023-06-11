@@ -32,16 +32,16 @@ fn main() -> Result<()> {
     // let mut nrp_year = xapian::RangeProcessor::new(2, "year:", xapian::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
     // qp.add_rangeprocessor(&mut nrp_year);
 
-    let mut nrp_year = xapian::NumberRangeProcessor::new(0, "year:", xapian::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
+    let mut nrp_year = xapian::NumberRangeProcessor::new(0, "year:", xapian::constants::RangeProcessorFlags::RP_PREFIX).expect("Error creating number range processor");
     qp.add_number_rangeprocessor(&mut nrp_year);
 
     qp.add_boolean_prefix("id", "Q");
 
-    let qp_flags = xapian::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM as i32;
+    let qp_flags = xapian::constants::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian::constants::QueryParserFeatureFlag::FLAG_CJK_NGRAM as i32;
     println!(
         "qp_flags: {:?} | {:?} = {:?}",
-        xapian::QueryParserFeatureFlag::FLAG_DEFAULT,
-        xapian::QueryParserFeatureFlag::FLAG_CJK_NGRAM,
+        xapian::constants::QueryParserFeatureFlag::FLAG_DEFAULT,
+        xapian::constants::QueryParserFeatureFlag::FLAG_CJK_NGRAM,
         qp_flags
     );
     let mut query = qp.parse_query(qs, qp_flags).expect("Error parsing query");
@@ -57,7 +57,7 @@ fn main() -> Result<()> {
     println!("matches_estimated: {}", matches_estimated);
 
     let mut stem = xapian::Stem::new("en").expect("Error creating stemmer");
-    let snippet_flags = xapian::SnippetFlags::SNIPPET_BACKGROUND_MODEL as i32 | xapian::SnippetFlags::SNIPPET_EXHAUSTIVE as i32;
+    let snippet_flags = xapian::constants::SnippetFlags::SNIPPET_BACKGROUND_MODEL as i32 | xapian::constants::SnippetFlags::SNIPPET_EXHAUSTIVE as i32;
     let mut it = mset.begin().unwrap();
     loop {
         if it.eq(&mut mset.end().unwrap()).unwrap() {

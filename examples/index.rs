@@ -12,14 +12,14 @@ fn main() -> Result<()> {
     // https://xapian.org/docs/apidoc/html/classXapian_1_1WritableDatabase.html#acac2d0fa337933e0ed66c7dce2ce75d0
     // automatically determining the database backend to use
     let _ = std::fs::create_dir_all("./data");
-    let mut db = WritableDatabase::new("./data/xapian-movie", xapian::DB_CREATE_OR_OPEN, 0).expect("Error opening database");
+    let mut db = WritableDatabase::new("./data/xapian-movie", xapian::constants::DB_CREATE_OR_OPEN, 0).expect("Error opening database");
 
     // let mut doc = xapian::Document::new().expect("Error creating document");
 
     let mut term_generator = xapian::TermGenerator::new().expect("Error creating term generator");
     // support CJK
     term_generator
-        .set_flags(xapian::TermGeneratorFlag::FLAG_CJK_NGRAM as i32, xapian::TermGeneratorFlag::FLAG_DEFAULT as i32)
+        .set_flags(xapian::constants::TermGeneratorFlag::FLAG_CJK_NGRAM as i32, xapian::constants::TermGeneratorFlag::FLAG_DEFAULT as i32)
         .expect("Error setting flags");
     term_generator.set_stemmer(xapian::Stem::new("en").expect("Error creating stemmer"));
 
