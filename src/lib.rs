@@ -100,6 +100,7 @@ pub(crate) mod ffi {
         pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>) -> Result<()>;
         pub(crate) fn enquire_set_weighting_scheme_bool(en: Pin<&mut Enquire>, bw: Pin<&mut BoolWeight>)-> Result<()>;
         pub(crate) fn enquire_set_weighting_scheme_bm25(en: Pin<&mut Enquire>, bw: Pin<&mut BM25Weight>)-> Result<()>;
+        pub(crate) fn enquire_set_docid_order(en: Pin<&mut Enquire>, order: i32) -> Result<()>;
 
         pub(crate) fn new_query_parser() -> Result<UniquePtr<QueryParser>>;
         pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32) -> Result<()>;
@@ -425,6 +426,11 @@ impl Enquire {
 
     pub fn set_weighting_scheme_bm25(&mut self, bm25_weight: &mut BM25Weight) -> Result<(), cxx::Exception> {
         ffi::enquire_set_weighting_scheme_bm25(self.cxxp.pin_mut(), bm25_weight.cxxp.pin_mut())?;
+        Ok(())
+    }
+
+    pub fn set_docid_order(&mut self, docid_order: constants::EnquireDocidOrder) -> Result<(), cxx::Exception> {
+        ffi::enquire_set_docid_order(self.cxxp.pin_mut(), docid_order as i32)?;
         Ok(())
     }
 }

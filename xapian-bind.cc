@@ -304,6 +304,10 @@ void enquire_set_weighting_scheme_bm25(Enquire &en, BM25Weight &weight) {
     en.set_weighting_scheme(weight);
 }
 
+void enquire_set_docid_order(Enquire &en, int32_t order) {
+    en.set_docid_order(Enquire::docid_order(order));
+}
+
 /////
 
 int get_matches_estimated (MSet &set) {

@@ -401,3 +401,16 @@ pub enum SnippetFlags {
      */
     SNIPPET_CJK_NGRAM = 2048,
 }
+
+// Enquire::docid_order
+#[allow(non_camel_case_types)]
+#[repr(i32)]
+#[derive(Debug)]
+pub enum EnquireDocidOrder {
+    /** docids sort in ascending order (default) */
+    ASCENDING = 1,
+    /** docids sort in descending order. */
+    DESCENDING = 0,
+    /** docids sort in whatever order is most efficient for the backend. */
+    DONT_CARE = 2
+}
