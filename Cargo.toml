@@ -3,7 +3,7 @@ name = "xapian"
 version = "0.1.4"
 edition = "2021"
 description = "Rust bindings to Xapian"
-documentation = "https://docs.rs/xapian"
+documentation = "https://ttys3.github.io/xapian-rs/xapian/"
 homepage = "https://github.com/ttys3/xapian-rs"
 repository = "https://github.com/ttys3/xapian-rs.git"
 readme = "README.md"
@@ -20,6 +20,7 @@ cxx = { version = "1.0.95", features = ["c++17"] }
 [build-dependencies]
 cxx-build = "1.0.95"
 pkg-config = "0.3.27"
+miette = { version = "5", features = ["fancy"] } # optional but gives nicer error messages!
 
 [dev-dependencies]
 anyhow = "1.0.71"
@@ -29,7 +30,12 @@ serde = { version = "1.0.163", features = ["derive"] }
 serde_json = "1.0.96"
 
 [features]
+# Note: crates.io imposes additional constraints on feature name syntax that
+# they must only be ASCII alphanumeric characters or _, -, or +.
+default = ["xapian-1_5"]
 vendored-xapian = []
+xapian-1_5 = []
+xapian-1_4 = []
 64bit = [ "64bit-docid", "64bit-termcount", "64bit-termpos" ]
 64bit-docid = []
 64bit-termcount = []
