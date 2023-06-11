@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader};
 use xapian::{Database, WritableDatabase};
 
 fn main() -> Result<()> {
-    let qs = "overview:gangsters year:1972..1975";
+    let qs = "overview:gangsters year:1972..1999";
     // let qs = "id:14236";
     let offset = 0;
     let page_size = 40;
@@ -52,6 +52,8 @@ fn main() -> Result<()> {
     let mut genres_spy = xapian::ValueCountMatchSpy::new(1).expect("Error creating value count match spy");
     enquire.add_matchspy_value_count(&mut genres_spy).expect("Error adding matchspy");
 
+    enquire.set_sort_by_value(0, true).expect("Error setting sort by value year desc");
+
     let mut mset = enquire.get_mset(offset, page_size).expect("Error getting mset");
     let matches_estimated = mset.get_matches_estimated().expect("Error getting matches estimated");
     println!("matches_estimated: {}", matches_estimated);
@@ -59,6 +61,7 @@ fn main() -> Result<()> {
     let mut stem = xapian::Stem::new("en").expect("Error creating stemmer");
     let snippet_flags = xapian::constants::SnippetFlags::SNIPPET_BACKGROUND_MODEL as i32 | xapian::constants::SnippetFlags::SNIPPET_EXHAUSTIVE as i32;
     let mut it = mset.begin().unwrap();
+    let mut idx = 0;
     loop {
         if it.eq(&mut mset.end().unwrap()).unwrap() {
             break;
@@ -76,8 +79,9 @@ fn main() -> Result<()> {
             "snippet: {:?}",
             mset.snippet(movie.overview.as_str(), 100, &mut stem, snippet_flags, "<b>", "</b>", "...")
         );
-        println!("movie: {:?}", movie);
+        println!("{} movie: {:?}", idx, movie);
         it.next();
+        idx += 1;
     }
 
     println!("genres_spy: {}", genres_spy.get_total());
