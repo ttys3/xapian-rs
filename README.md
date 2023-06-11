@@ -7,6 +7,11 @@
 
 xapian bind for rust
 
+this version is trying to use autocxx to generate xapian c++ api bindings.
+
+currently autocxx has no exception support.
+see https://google.github.io/autocxx/other_features.html#exceptions
+
 ## honey backend status
 
 > The remaining blockers for this are:
