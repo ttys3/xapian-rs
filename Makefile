@@ -3,6 +3,9 @@ example/hello: export LD_LIBRARY_PATH=xapian/xapian-core/.libs
 example/hello:
 	cargo run --example hello -F vendored-xapian
 
+doc:
+	cargo doc --no-deps --document-private-items
+
 example/index: export LD_LIBRARY_PATH=xapian/xapian-core/.libs
 example/index:
 	cargo run --example index -F vendored-xapian
