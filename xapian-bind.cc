@@ -308,6 +308,17 @@ void enquire_set_docid_order(Enquire &en, int32_t order) {
     en.set_docid_order(Enquire::docid_order(order));
 }
 
+void enquire_set_sort_by_relevance(Enquire &en) {
+    en.set_sort_by_relevance();
+}
+
+void enquire_set_sort_by_value(Enquire &en, valueno sort_key, bool reverse) {
+    en.set_sort_by_value(sort_key, reverse);
+}
+
+void enquire_set_collapse_key(Enquire &en, valueno collapse_key, doccount collapse_max = 1) {
+    en.set_collapse_key(collapse_key, collapse_max);
+}
 /////
 
 int get_matches_estimated (MSet &set) {

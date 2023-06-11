@@ -104,6 +104,10 @@ void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms);
 void enquire_set_weighting_scheme_bool(Enquire &en, BoolWeight &weight);
 void enquire_set_weighting_scheme_bm25(Enquire &en, BM25Weight &weight);
 void enquire_set_docid_order(Enquire &en, int32_t order);
+void enquire_set_sort_by_relevance(Enquire &en);
+void enquire_set_sort_by_value(Enquire &en, valueno sort_key, bool reverse);
+void enquire_set_sort_by_relevance_then_value(Enquire &en, valueno sort_key, bool reverse);
+void enquire_set_collapse_key(Enquire &en, valueno collapse_key, doccount collapse_max);
 
 //
 int get_matches_estimated (MSet &set);

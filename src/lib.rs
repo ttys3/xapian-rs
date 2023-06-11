@@ -101,6 +101,10 @@ pub(crate) mod ffi {
         pub(crate) fn enquire_set_weighting_scheme_bool(en: Pin<&mut Enquire>, bw: Pin<&mut BoolWeight>)-> Result<()>;
         pub(crate) fn enquire_set_weighting_scheme_bm25(en: Pin<&mut Enquire>, bw: Pin<&mut BM25Weight>)-> Result<()>;
         pub(crate) fn enquire_set_docid_order(en: Pin<&mut Enquire>, order: i32) -> Result<()>;
+        pub(crate) fn enquire_set_sort_by_relevance(en: Pin<&mut Enquire>) -> Result<()>;
+        pub(crate) fn enquire_set_sort_by_value(en: Pin<&mut Enquire>, sort_key: u32, reverse: bool) -> Result<()>;
+        pub(crate) fn enquire_set_sort_by_relevance_then_value(en: Pin<&mut Enquire>, sort_key: u32, reverse: bool) -> Result<()>;
+        pub(crate) fn enquire_set_collapse_key(en: Pin<&mut Enquire>, collapse_key: u32, collapse_max: u32)-> Result<()>;
 
         pub(crate) fn new_query_parser() -> Result<UniquePtr<QueryParser>>;
         pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32) -> Result<()>;
@@ -431,6 +435,26 @@ impl Enquire {
 
     pub fn set_docid_order(&mut self, docid_order: constants::EnquireDocidOrder) -> Result<(), cxx::Exception> {
         ffi::enquire_set_docid_order(self.cxxp.pin_mut(), docid_order as i32)?;
+        Ok(())
+    }
+
+    pub fn set_sort_by_relevance(&mut self) -> Result<(), cxx::Exception> {
+        ffi::enquire_set_sort_by_relevance(self.cxxp.pin_mut())?;
+        Ok(())
+    }
+
+    pub fn set_sort_by_value(&mut self, sort_key: u32, reverse: bool) -> Result<(), cxx::Exception> {
+        ffi::enquire_set_sort_by_value(self.cxxp.pin_mut(), sort_key, reverse)?;
+        Ok(())
+    }
+
+    pub fn set_sort_by_relevance_then_value(&mut self, sort_key: u32, reverse: bool) -> Result<(), cxx::Exception> {
+        ffi::enquire_set_sort_by_relevance_then_value(self.cxxp.pin_mut(), sort_key, reverse)?;
+        Ok(())
+    }
+
+    pub fn set_collapse_key(&mut self, collapse_key: u32, collapse_max: u32)-> Result<(), cxx::Exception> {
+        ffi::enquire_set_collapse_key(self.cxxp.pin_mut(), collapse_key, collapse_max)?;
         Ok(())
     }
 }
