@@ -17,7 +17,17 @@ include_cpp! {
 
     generate!("writable_database_close")
 
-    // Xapian::version_string
+    // https://google.github.io/autocxx/workflow.html#my-build-entirely-failed
+    // autocxx does not allow instantiation of abstract types5 (aka types with pure virtual methods).
+    // Virtual base class for expand decider functor
+    block!("Xapian::ExpandDecider")
+    block!("Xapian::KeyMaker")
+    block!("Xapian::MatchDecider")
+    block!("Xapian::MatchSpy")
+    block!("Xapian::Stopper")
+    block!("Xapian::ValueRangeProcessor")
+    block!("Xapian::FieldProcessor")
+
     generate!("Xapian::version_string")
     generate!("Xapian::DB_CREATE_OR_OPEN")
     generate!("Xapian::DB_BACKEND_HONEY")
@@ -53,10 +63,7 @@ include_cpp! {
     // MSetIterator
     generate!("Xapian::MSetIterator")
 
-    // https://google.github.io/autocxx/workflow.html#my-build-entirely-failed
-    // autocxx does not allow instantiation of abstract types5 (aka types with pure virtual methods).
-    // Virtual base class for expand decider functor
-    block!("Xapian::ExpandDecider")
+
     // ExpandDeciderFilterTerms
     // ExpandDeciderAnd
     generate!("Xapian::ExpandDeciderAnd")
@@ -64,14 +71,12 @@ include_cpp! {
     // ExpandDeciderFilterPrefix
     generate!("Xapian::ExpandDeciderFilterPrefix")
 
-    block!("Xapian::KeyMaker")
     // MultiValueKeyMaker
     generate!("Xapian::MultiValueKeyMaker")
     // LatLongDistanceKeyMaker
     generate!("Xapian::LatLongDistanceKeyMaker")
 
 
-    block!("Xapian::MatchSpy")
     // ValueCountMatchSpy
     generate!("Xapian::ValueCountMatchSpy")
 
@@ -92,11 +97,9 @@ include_cpp! {
     // Query
     generate!("Xapian::Query")
 
-    block!("Xapian::Stopper")
     // SimpleStopper
     generate!("Xapian::SimpleStopper")
 
-    block!("Xapian::ValueRangeProcessor")
     // RangeProcessor
     generate!("Xapian::RangeProcessor")
     // DateRangeProcessor
@@ -111,7 +114,6 @@ include_cpp! {
     generate!("Xapian::QueryParser")
 
     // MatchDecider
-    block!("Xapian::MatchDecider")
     // ValueSetMatchDecider
     generate!("Xapian::ValueSetMatchDecider")
 
@@ -155,7 +157,6 @@ include_cpp! {
     generate!("Xapian::PostingIterator")
 
     generate!("Xapian::Enquire")
-    block!("Xapian::FieldProcessor")
 
     //Registry
     generate!("Xapian::Registry")
