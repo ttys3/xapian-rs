@@ -9,6 +9,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -28,9 +31,19 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    container: fedora:38
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          dnf install -y dnf-plugins-core
+          dnf copr enable -y ttys3/my-fedora-packages
+          dnf upgrade -y --refresh
+          dnf install -y cargo rust gcc-c++ clang-devel cmake make
+          dnf install -y xapian-core xapian-core-libs xapian-core-devel
+      - name: Build doc
+        run: cargo doc --no-deps --document-private-items
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
