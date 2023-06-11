@@ -10,3 +10,6 @@ test:
 test_wrapper: export LD_LIBRARY_PATH=xapian/xapian-core/.libs
 test_wrapper:
 	cargo test --package xapian -F vendored-xapian --lib test::test_xapian_wrapper -- --exact
+
+example/hello:
+	cargo run --example hello

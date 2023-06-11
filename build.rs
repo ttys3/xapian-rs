@@ -3,16 +3,8 @@ use std::path::{Path, PathBuf};
 
 fn main() -> miette::Result<()> {
     let xapian_15 = env::var("CARGO_FEATURE_XAPIAN_1_5").is_ok();
-    let pkg_config_lib_name = if xapian_15 {
-        "xapian-core-1.5"
-    } else {
-        "xapian-core"
-    };
-    let link_lib_name = if xapian_15 {
-        "xapian-1.5"
-    } else {
-        "xapian"
-    };
+    let pkg_config_lib_name = if xapian_15 { "xapian-core-1.5" } else { "xapian-core" };
+    let link_lib_name = if xapian_15 { "xapian-1.5" } else { "xapian" };
 
     let mut vendored_xapian = env::var("CARGO_FEATURE_VENDORED_XAPIAN").is_ok();
     let try_to_use_system_xapian = !vendored_xapian;
@@ -26,8 +18,10 @@ fn main() -> miette::Result<()> {
             for include in &lib.include_paths {
                 println!("cargo:root={}", include.display());
             }
-            println!("cargo:warning=found and use system xapian: {}, include_paths: {:?}, libs: {:?}",
-                     pkg_config_lib_name, &lib.include_paths, &lib.libs);
+            println!(
+                "cargo:warning=found and use system xapian: {}, include_paths: {:?}, libs: {:?}",
+                pkg_config_lib_name, &lib.include_paths, &lib.libs
+            );
         } else {
             println!("cargo:warning=failed to find system xapian, falling back to vendored");
             vendored_xapian = true;
@@ -41,11 +35,7 @@ fn main() -> miette::Result<()> {
     // xapian 1.4 /usr/include/xapian.h and /usr/include/xapian/*.h
     let manifest_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
 
-    let sys_include_dir = if xapian_15 {
-        "/usr/include/xapian-1.5"
-    } else {
-        "/usr/include"
-    };
+    let sys_include_dir = if xapian_15 { "/usr/include/xapian-1.5" } else { "/usr/include" };
 
     let xapian_include_dir = if vendored_xapian {
         if xapian_15 {
