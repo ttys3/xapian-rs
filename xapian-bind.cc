@@ -296,6 +296,14 @@ void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms) {
     en.add_matchspy(&vcms);
 }
 
+void enquire_set_weighting_scheme_bool(Enquire &en, BoolWeight &weight) {
+    en.set_weighting_scheme(weight);
+}
+
+void enquire_set_weighting_scheme_bm25(Enquire &en, BM25Weight &weight) {
+    en.set_weighting_scheme(weight);
+}
+
 /////
 
 int get_matches_estimated (MSet &set) {
@@ -404,4 +412,16 @@ bool term_iterator_eq(TermIterator &titer, TermIterator &other) {
 
 void term_iterator_next(TermIterator &titer) {
     ++titer;
+}
+
+//// Weight
+
+// BoolWeight
+std::unique_ptr<BoolWeight> new_bool_weight() {
+    return std::make_unique<Xapian::BoolWeight>();
+}
+
+// BM25
+std::unique_ptr<BM25Weight> new_bm25_weight(double k1, double k2, double k3, double b, double min_normlen) {
+    return std::make_unique<Xapian::BM25Weight>(k1, k2, k3, b, min_normlen);
 }

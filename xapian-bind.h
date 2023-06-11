@@ -90,11 +90,20 @@ std::unique_ptr<Query> add_right_query(Query &this_q, int32_t _op, Query &q);
 bool query_is_empty (Query &q);
 rust::String get_description (Query &q);
 
+// Weight
+// BoolWeight
+std::unique_ptr<BoolWeight> new_bool_weight();
+// BM25Weight
+std::unique_ptr<BM25Weight> new_bm25_weight(double k1, double k2, double k3, double b, double min_normlen);
+
 //
 std::unique_ptr<MSet> get_mset(Enquire &en, int32_t from, int32_t size);
 void set_query(Enquire &en, Query &query);
 void set_sort_by_key(Enquire &en, MultiValueKeyMaker & sorter, bool reverse);
 void add_matchspy_value_count(Enquire &en, ValueCountMatchSpy &vcms);
+void enquire_set_weighting_scheme_bool(Enquire &en, BoolWeight &weight);
+void enquire_set_weighting_scheme_bm25(Enquire &en, BM25Weight &weight);
+
 //
 int get_matches_estimated (MSet &set);
 int mset_size (MSet &set);

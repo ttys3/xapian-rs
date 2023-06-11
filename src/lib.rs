@@ -27,6 +27,8 @@ pub(crate) mod ffi {
         pub(crate) type NumberRangeProcessor;
         pub(crate) type MatchSpy;
         pub(crate) type ValueCountMatchSpy;
+        pub(crate) type BoolWeight;
+        pub(crate) type BM25Weight;
     }
 
     unsafe extern "C++" {
@@ -96,6 +98,8 @@ pub(crate) mod ffi {
         pub(crate) fn set_query(en: Pin<&mut Enquire>, query: Pin<&mut Query>) -> Result<()>;
         pub(crate) fn set_sort_by_key(en: Pin<&mut Enquire>, sorter: Pin<&mut MultiValueKeyMaker>, reverse: bool) -> Result<()>;
         pub(crate) fn add_matchspy_value_count(en: Pin<&mut Enquire>, vcms: Pin<&mut ValueCountMatchSpy>) -> Result<()>;
+        pub(crate) fn enquire_set_weighting_scheme_bool(en: Pin<&mut Enquire>, bw: Pin<&mut BoolWeight>)-> Result<()>;
+        pub(crate) fn enquire_set_weighting_scheme_bm25(en: Pin<&mut Enquire>, bw: Pin<&mut BM25Weight>)-> Result<()>;
 
         pub(crate) fn new_query_parser() -> Result<UniquePtr<QueryParser>>;
         pub(crate) fn set_max_wildcard_expansion(qp: Pin<&mut QueryParser>, limit: i32) -> Result<()>;
@@ -130,6 +134,12 @@ pub(crate) mod ffi {
         pub(crate) fn term_iterator_get_termfreq_freq(titer: Pin<&mut TermIterator>) -> i32;
         pub(crate) fn term_iterator_eq(titer: Pin<&mut TermIterator>, other: Pin<&mut TermIterator>) -> bool;
         pub(crate) fn term_iterator_next(titer: Pin<&mut TermIterator>);
+
+        // Weight
+        // BoolWeight
+        pub(crate) fn new_bool_weight() -> Result<UniquePtr<BoolWeight>>;
+        // BM25
+        pub(crate) fn new_bm25_weight(k1: f64, k2: f64, k3: f64, b: f64, min_normlen: f64) -> Result<UniquePtr<BM25Weight>>;
     }
 }
 
@@ -413,6 +423,16 @@ impl Enquire {
 
         Ok(())
     }
+
+    pub fn set_weighting_scheme_bool(&mut self, bool_weight: &mut BoolWeight) -> Result<(), cxx::Exception> {
+        ffi::enquire_set_weighting_scheme_bool(self.cxxp.pin_mut(), bool_weight.cxxp.pin_mut())?;
+        Ok(())
+    }
+
+    pub fn set_weighting_scheme_bm25(&mut self, bm25_weight: &mut BM25Weight) -> Result<(), cxx::Exception> {
+        ffi::enquire_set_weighting_scheme_bm25(self.cxxp.pin_mut(), bm25_weight.cxxp.pin_mut())?;
+        Ok(())
+    }
 }
 
 pub struct Database {
@@ -688,3 +708,44 @@ impl TermIterator {
     }
 }
 
+pub struct BoolWeight {
+    pub cxxp: UniquePtr<ffi::BoolWeight>,
+}
+
+impl BoolWeight {
+    pub fn new() -> Result<Self, cxx::Exception> {
+        Ok(Self {
+            cxxp: ffi::new_bool_weight()?,
+        })
+    }
+}
+
+pub struct BM25Weight {
+    pub cxxp: UniquePtr<ffi::BM25Weight>,
+}
+
+impl BM25Weight {
+    pub fn new(k1: f64, k2: f64, k3: f64, b: f64, min_normlen: f64) -> Result<Self, cxx::Exception> {
+        Ok(Self {
+            cxxp: ffi::new_bm25_weight(k1, k2, k3, b, min_normlen)?,
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_bool_weight() {
+        let mut bool_weight = BoolWeight::new();
+       assert!(bool_weight.is_ok());
+    }
+
+    // test new bm25
+    #[test]
+    fn test_new_bm25_weight() {
+        let mut bm25_weight = BM25Weight::new(1.2, 1.2, 1.2, 1.2, 1.2);
+        assert!(bm25_weight.is_ok());
+    }
+}
