@@ -400,13 +400,10 @@ impl Enquire {
 
     pub fn set_query(&mut self, query: &mut Query) -> Result<(), cxx::Exception> {
         ffi::set_query(self.cxxp.pin_mut(), query.cxxp.pin_mut())?;
-
         Ok(())
     }
 
     pub fn set_sort_by_key(&mut self, mut sorter: MultiValueKeyMaker, reverse: bool) -> Result<(), cxx::Exception> {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
         ffi::set_sort_by_key(self.cxxp.pin_mut(), sorter.cxxp.pin_mut(), reverse)?;
         self.sorter = Some(sorter);
         Ok(())
@@ -417,10 +414,7 @@ impl Enquire {
     }
 
     pub fn add_matchspy_value_count(&mut self, vcms: &mut ValueCountMatchSpy) -> Result<(), cxx::Exception> {
-        #[allow(unused_unsafe)]
-        let mut err = 0;
         ffi::add_matchspy_value_count(self.cxxp.pin_mut(), vcms.cxxp.pin_mut())?;
-
         Ok(())
     }
 
@@ -623,7 +617,6 @@ impl TermGenerator {
 }
 
 #[warn(unused_unsafe)]
-
 pub struct ValueCountMatchSpy {
     pub cxxp: UniquePtr<ffi::ValueCountMatchSpy>,
 }
@@ -679,7 +672,6 @@ impl NumberRangeProcessor {
 }
 
 #[warn(unused_unsafe)]
-
 pub struct TermIterator {
     pub cxxp: UniquePtr<ffi::TermIterator>,
 }
