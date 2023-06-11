@@ -9,6 +9,7 @@ repository = "https://github.com/ttys3/xapian-rs.git"
 readme = "README.md"
 authors = ["Valeriy Bushenev <ValeriyBushenev@gmail.com>", "David Tolnay <dtolnay@gmail.com>"]
 license = "MIT"
+exclude = ["xapian", ".*"]
 links = "xapian-rs"
 
 [lib]
