@@ -1,6 +1,6 @@
 [package]
 name = "xapian"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 description = "Rust bindings to Xapian"
 documentation = "https://ttys3.github.io/xapian-rs/xapian/"
