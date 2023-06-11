@@ -19,7 +19,7 @@ fn main() -> Result<()> {
     let mut term_generator = xapian::TermGenerator::new().expect("Error creating term generator");
     // support CJK
     term_generator
-        .set_flags(xapian::constants::TermGeneratorFlag::FLAG_CJK_NGRAM as i32, xapian::constants::TermGeneratorFlag::FLAG_DEFAULT as i32)
+        .set_flags(xapian::constants::TermGeneratorFlag::FLAG_WORD_BREAKS as i32, xapian::constants::TermGeneratorFlag::FLAG_DEFAULT as i32)
         .expect("Error setting flags");
     term_generator.set_stemmer(xapian::Stem::new("en").expect("Error creating stemmer"));
 

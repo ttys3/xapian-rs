@@ -37,11 +37,11 @@ fn main() -> Result<()> {
 
     qp.add_boolean_prefix("id", "Q");
 
-    let qp_flags = xapian::constants::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian::constants::QueryParserFeatureFlag::FLAG_NGRAMS as i32;
+    let qp_flags = xapian::constants::QueryParserFeatureFlag::FLAG_DEFAULT as i32 | xapian::constants::QueryParserFeatureFlag::FLAG_WORD_BREAKS as i32;
     println!(
         "qp_flags: {:?} | {:?} = {:?}",
         xapian::constants::QueryParserFeatureFlag::FLAG_DEFAULT,
-        xapian::constants::QueryParserFeatureFlag::FLAG_NGRAMS,
+        xapian::constants::QueryParserFeatureFlag::FLAG_WORD_BREAKS,
         qp_flags
     );
     let mut query = qp.parse_query(qs, qp_flags).expect("Error parsing query");
