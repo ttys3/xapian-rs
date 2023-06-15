@@ -116,6 +116,8 @@ HACKING: `XAPIAN_DEBUG_LOG=-` send output to stderr, not stdout.
 
 `XAPIAN_DEBUG_FLAGS`
 
+`XAPIAN_FLUSH_THRESHOLD`
+
 ## Intellij IDE
 
 intellij-rust false positives with cxx
@@ -123,11 +125,11 @@ intellij-rust false positives with cxx
 see https://github.com/intellij-rust/intellij-rust/issues/8369#issuecomment-1362698416
 
 > `cxx::bridge` is [attribute](https://doc.rust-lang.org/reference/procedural-macros.html#attribute-macros) procedural macro. And since the plugin doesn't expand them by default at this moment, code is highlighted with error annotations in places where syntax is not allowed from the point of view of common Rust. For example, you cannot write type aliases inside extern blocks. But you can enable expansion of attributes macros with `org.rust.macros.proc.attr` [experimental feature](https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-faq.html#experimental-features). After this, almost everything will work as expected (except annotation of `unsafe` before extern block).
-> 
+>
 > <img alt="image" width="645" src="https://user-images.githubusercontent.com/2539310/209118936-3788dcd6-daae-4b85-8108-d3c0d537c139.png">
-> 
+>
 > Don't forget to [reload](https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-cargo-tool-window.html#cargo-load) the project model after enabling the experimental feature.
-> 
+>
 > See [#6908](https://github.com/intellij-rust/intellij-rust/issues/6908) for details
 
 
